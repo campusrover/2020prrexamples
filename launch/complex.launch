@@ -1,0 +1,4 @@
+<launch>
+    <node name="pub" pkg="rosbook" type="message_publisher.py" output="screen"/>
+    <node name="sub" pkg="rosbook" type="message_subscriber.py" output="screen"/>
+</launch>

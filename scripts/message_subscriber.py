@@ -7,6 +7,7 @@ def callback(msg):
     print 'Imaginary:', msg.imaginary
     print
     
+print "starting message subscriber"
 rospy.init_node('message_subscriber')
 sub = rospy.Subscriber('complex', Complex, callback)
 rospy.spin()
