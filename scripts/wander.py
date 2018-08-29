@@ -38,10 +38,10 @@ while not rospy.is_shutdown():
     print(state_change_time.secs, state_change_time.nsecs)
     print(rospy.Time.now() > state_change_time, g_range_ahead, driving_forward)
 
-    # check whether antyhing is closer than 0.5 meters or 
+    # check whether antyhing is closer than x meters or 
     # time for driving foreward is over, then start spinning in place
     if driving_forward:
-        if (g_range_ahead < 0.5 or rospy.Time.now() > state_change_time):
+        if (g_range_ahead < 0.2 or rospy.Time.now() > state_change_time):
             driving_forward = False
             state_change_time = rospy.Time.now() + rospy.Duration(3)
             
@@ -49,7 +49,7 @@ while not rospy.is_shutdown():
     else: # we're not driving_forward
         if rospy.Time.now() > state_change_time:
             driving_forward = True # we're done spinning, time to go forward!
-            state_change_time = rospy.Time.now() + rospy.Duration(5)
+            state_change_time = rospy.Time.now() + rospy.Duration(30)
     
     # Create an all zero Twist() message. Note a new one is created each loop
     twist = Twist()
@@ -58,7 +58,7 @@ while not rospy.is_shutdown():
     if driving_forward:
         twist.linear.x = 0.2
     else:
-        twist.angular.z = 0.1
+        twist.angular.z = 1.0
     
     # Publish cmd_vel with the desired motion
     cmd_vel_pub.publish(twist)

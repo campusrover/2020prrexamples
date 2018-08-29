@@ -16,7 +16,7 @@ rospy.init_node('red_light_green_light')
 
 red_light_twist = Twist()
 green_light_twist = Twist()
-green_light_twist.linear.x = 0.3
+green_light_twist.linear.x = 0.22
 
 # if driving_forward is true we use green_light_twist, otherwise red_light_twist
 driving_forward = False
