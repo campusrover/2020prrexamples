@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Don't forget to chmod +x topic_publisher.py
 
 import rospy
 from std_msgs.msg import Int32
