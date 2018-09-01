@@ -4,6 +4,7 @@ import time
 import actionlib
 from rosbook.msg import TimerAction, TimerGoal, TimerResult
 
+# Action REquest Comes in
 def do_timer(goal):
     start_time = time.time()
     time.sleep(goal.time_to_wait.to_sec())
@@ -12,7 +13,15 @@ def do_timer(goal):
     result.updates_sent = 0
     server.set_succeeded(result)
 
+# Declare that we are a node
 rospy.init_node('timer_action_server')
+
+# Declare that this node will handle actions
+# When action requests come in, call do_timer method
 server = actionlib.SimpleActionServer('timer', TimerAction, do_timer, False)
+
+# Start it up
 server.start()
+
+# Wait until ^c
 rospy.spin()
