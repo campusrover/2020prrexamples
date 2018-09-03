@@ -19,8 +19,7 @@ def do_timer(goal):
 
         if server.is_preempt_requested():
             result = TimerResult()
-            result.time_elapsed = \
-            rospy.Duration.from_sec(time.time() - start_time)
+            result.time_elapsed = rospy.Duration.from_sec(time.time() - start_time)
             result.updates_sent = update_count
             server.set_preempted(result, "Timer preempted")
             return
