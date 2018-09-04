@@ -22,6 +22,7 @@ def keys_cb(msg, twist_pub):
 
 # Main program when this .py file is called directly (this is a standard python idiom)
 if __name__ == '__main__':
+
 # Declare node
     rospy.init_node('keys_to_twist')
 
