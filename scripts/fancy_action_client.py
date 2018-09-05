@@ -10,7 +10,10 @@ def feedback_cb(feedback):
 
 rospy.init_node('timer_action_client')
 client = actionlib.SimpleActionClient('timer', TimerAction)
+
+print("Waiting for server...")
 client.wait_for_server()
+print("Server running...")
 
 goal = TimerGoal()
 goal.time_to_wait = rospy.Duration.from_sec(5.0)

@@ -4,7 +4,7 @@ import time
 import actionlib
 from rosbook.msg import TimerAction, TimerGoal, TimerResult
 
-# Action REquest Comes in
+# Action Request Comes in
 def do_timer(goal):
     start_time = time.time()
     time.sleep(goal.time_to_wait.to_sec())
