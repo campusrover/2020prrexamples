@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
 import rospy
 import cv2
 import sys
@@ -19,30 +20,22 @@ class Follower:
     def image_callback(self, frame):
         # Convert image to cv2 and display it
         try:
-            print 21
             self.cv_img = self.bridge.imgmsg_to_cv2(frame, desired_encoding="bgr8")
-            print 23
         except:
             print("Unexpected error:", sys.exc_info()[0])
             raise
-
+        
 def main():
     cv2.namedWindow('Original')
-    print 30
     follower = Follower()
     rospy.init_node('follower', anonymous=True)
 
     while(not rospy.is_shutdown()):
-        print 35
         if follower.cv_img is not None:
-            print 37
             cv2.imshow('Original', follower.cv_img)
-            print 39
         key = cv2.waitKey(3) & 0xFF
         if key == 27:
             break
-        print 43
-        rospy.spin()
 
 if __name__ == '__main__':
     main()
