@@ -5,7 +5,7 @@ from std_msgs.msg import Int32
 
 # define function is called each time the message is published (by some other node)
 def callback(msg):
-   print msg.data
+   print "The square is " + str(msg.data*msg.data)
 
 rospy.init_node('topic_subscriber')
 sub = rospy.Subscriber('counter', Int32, callback)

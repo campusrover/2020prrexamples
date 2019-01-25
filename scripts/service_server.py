@@ -6,8 +6,9 @@ import rospy
 from rosbook.srv import WordCount, WordCountResponse
 
 # Service handler, called when a client wants to invoke the service. It receives
-# the string, computes the number of words, and returns it
+# the string, computes the nuber of words, and returns it
 def count_words(request):
+    print("Responding to a request for: "+request.words)
     return WordCountResponse(len(request.words.split()))
 
 # Declare a node
