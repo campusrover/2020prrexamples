@@ -1,0 +1,4 @@
+<launch>
+    <node name="pub" pkg="pid_demo" type="driver.py" output="screen"/>
+    <node name="sub" pkg="pid_demo" type="range_ahead.py" output="screen"/>
+</launch>
