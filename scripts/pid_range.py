@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from sensor_msgs.msg import LaserScan
-
+from rosbook.msg import Detector
 
 
 def calc_range(range, mp1, mp2, wedge):
@@ -18,6 +18,8 @@ def scan_callback(msg):
   left_r = calc_range(msg.ranges, 90, 91, 15)
   back_r = calc_range(msg.ranges, 180, 181, 15)
   print "range (f,l,r,b) %0.1f %0.1f %0.1f %0.1f " % (ahead_r, left_r, right_r, back_r)
+  d = Detector(ahead_r, left_r, right_r, back_r)
+  pub.publish(d)
 
 # Create the node
 rospy.init_node('range_ahead')
@@ -26,6 +28,8 @@ rospy.init_node('range_ahead')
 # Python class of msg is LaserScan
 # Function to call on each scan is scan_callback
 scan_sub = rospy.Subscriber('scan', LaserScan, scan_callback)
+pub = rospy.Publisher('detector', Detector, queue_size=10)
+
 
 # Loop until ^c
 rospy.spin()
