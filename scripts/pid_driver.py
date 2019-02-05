@@ -64,21 +64,37 @@ rate = rospy.Rate(5)
 while not rospy.is_shutdown():
     buffer.pop(1)
     buffer.append(abs(current_left-last_left))
+    delta_from_goal = wall_dist - closes
     left_wall_change = abs(buffer[0]-buffer[-1])
-    if (closest_dir != "left" and closest <= wall_dist):
-        smart_logger("paralleling into positiom")
+    if (closest_dir != "forward" and closest > wall_dist):
+        smart_logger("too far, turn towards wall")
         cmd_vel_pub.publish(tw_rot)
-    elif (closest_dir == "left" and closest > (wall_dist * 0.7)):
-        smart_logger("paralleling")
-        cmd_vel_pub.publish(tw_rot)
-    elif (closest_dir == "forward" and closest > wall_dist):
+    elif(closest_dir == "forward" and closest > wall_dist):
+        smart_logger("too far. Drive towards wall")
         cmd_vel_pub.publish(tw_for)
-        smart_logger("forward towards wall")
-    elif (closest_dir != "forward" and closest > wall_dist):
-        cmd_vel_pub.publish(tw_rot)
-        smart_logger("turning towards wall")
+    elif (closest_dir == "left" and delta_from_goal < 0.2):
+        smart_logger("following wall")
+        cmd_vel_pub.publish(tw_for)
     else:
-        smart_logger("stopped")
+        smart_logger("I dont know the right next move")
         cmd_vel_pub.publish(tw_stop)
+    # if (closest_dir != "left" and closest <= wall_dist):
+    #     smart_logger("paralleling into positiom")
+    #     cmd_vel_pub.publish(tw_rot)
+    # elif (closest_dir == "left" and closest > (wall_dist * 0.7)):
+    #     smart_logger("paralleling")
+    #     cmd_vel_pub.publish(tw_rot)
+    # elif (closest_dir == "forward" and closest > wall_dist):
+    #     cmd_vel_pub.publish(tw_for)
+    #     smart_logger("forward towards wall")
+    # elif (closest_dir != "forward" and closest > wall_dist):
+    #     cmd_vel_pub.publish(tw_rot)
+    #     smart_logger("turning towards wall")
+    # elif (closest_dir == "left" and closest == wall_dist):
+    #     cmd_vel_pub.publish(tw_for)
+    #     smart_logger("following wall")
+    # else:
+    #     smart_logger("stopped")
+    #     cmd_vel_pub.publish(tw_stop)
     last_left = current_left
     rate.sleep()
