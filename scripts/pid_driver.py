@@ -76,10 +76,10 @@ while not rospy.is_shutdown():
     elif(closest_dir == "forward" and delta_from_goal < -0.5):
         smart_logger("Too far. Drive towards wall")
         cmd_vel_pub.publish(tw_for)
-    elif (closest_dir != "left" and abs(delta_from_goal) <= 0.1):
+    elif (closest_dir != "left" and delta_from_goal <= 0.1):
         smart_logger("near wall, turning towards it.")
         cmd_vel_pub.publish(tw_rot)
-    elif (closest_dir == "left" and abs(delta_from_goal) <= 0.1):
+    elif (closest_dir == "left" and delta_from_goal <= 0.1):
         smart_logger("following wall")
         cmd_vel_pub.publish(tw_for)
     else:
