@@ -3,34 +3,72 @@ import rospy
 from sensor_msgs.msg import LaserScan
 from rosbook.msg import Detector
 
+# float32 narrow_l1
+# float32 narrow_l2
+# float32 narrow_l3
+# float32 narrow_r1
+# float32 narrow_r2
+# float32 narrow_r3
+# float32 forward
+# float32 left
+# float32 right
+# float32 back
+# float32 closest_dist
+# string closest_dir
+
 
 def calc_range(range, mp1, mp2, wedge):
   combo = range[mp1-wedge:mp1] + range[mp2:mp2+wedge]
   mean = sum(combo) / len(combo)
   return mean
 
-# Function is called every time the lidar has a scan
-# Once for every rotation of the scan
-# Notice msg is the one parameter
 def scan_callback(msg):
-  ahead_r = calc_range(msg.ranges, 359, 0, 15)
-  right_r = calc_range(msg.ranges, 270, 271, 15)
-  left_r = calc_range(msg.ranges, 90, 91, 15)
-  back_r = calc_range(msg.ranges, 180, 181, 15)
-  lnarrow_r = sum(msg.ranges[89:91])/3
-  print "range lnarrow: %0.2f (f,l,r,b) %0.1f %0.1f %0.1f %0.1f " % (lnarrow_r, ahead_r, left_r, right_r, back_r)
-  d = Detector(lnarrow_r, ahead_r, left_r, right_r, back_r)
+  forward = calc_range(msg.ranges, 359, 0, 15)
+  right = calc_range(msg.ranges, 270, 271, 15)
+  left = calc_range(msg.ranges, 90, 91, 15)
+  back = calc_range(msg.ranges, 180, 181, 15)
+  narrow_l1 = sum(msg.ranges[86:88])/3
+  narrow_l2 = sum(msg.ranges[89:91])/3
+  narrow_l3 = sum(msg.ranges[92:94])/3
+  narrow_r1 = sum(msg.ranges[272:275])/3
+  narrow_r2 = sum(msg.ranges[269:271])/3
+  narrow_r3 = sum(msg.ranges[266:268])/3
+  closest_dist = min(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3, 
+                    forward, left, right, back) 
+  if (closest_dist == forward):
+    closest_dir = "forward"
+  elif (closest_dist == left):
+    closest_dir = "left"
+  elif (closest_dist == right):
+    closest_dir = "right"
+  elif (closest_dist == back):
+    closest_dir = "back"
+  elif (closest_dist == narrow_l1):
+    closest_dir = "narrow_l1"
+  elif (closest_dist == narrow_l2):
+    closest_dir = "narrow_l2"
+  elif (closest_dist == narrow_l3):
+    closest_dir = "narrow_l3"
+  elif (closest_dist == narrow_r1):
+    closest_dir = "narrow_r1"
+  elif (closest_dist == narrow_r2):
+    closest_dir = "narrow_r2"
+  elif (closest_dist == narrow_r3):
+    closest_dir = "narrow_r3"
+  else:
+    closest_dir = "bug"
+  
+  d = Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3, 
+            forward, left, right, back, closest_dist, closest_dir)
+  print("\n[%s=%1.1f] [flrb %1.1f %1.1f %1.1f %1.1f]" % (closest_dir, closest_dist, forward, left, right, back))
+  print("nl: [%1.1f %1.1f %1.1f], nr: [%1.1f %1.1f %1.1f]" % (narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3))
   pub.publish(d)
 
 # Create the node
 rospy.init_node('range_ahead')
-
-# declare the subsceriber
-# Python class of msg is LaserScan
-# Function to call on each scan is scan_callback
 scan_sub = rospy.Subscriber('scan', LaserScan, scan_callback)
 pub = rospy.Publisher('detector', Detector, queue_size=10)
 
-
 # Loop until ^c
 rospy.spin()
+
