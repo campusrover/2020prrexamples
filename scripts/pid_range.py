@@ -17,8 +17,9 @@ def scan_callback(msg):
   right_r = calc_range(msg.ranges, 270, 271, 15)
   left_r = calc_range(msg.ranges, 90, 91, 15)
   back_r = calc_range(msg.ranges, 180, 181, 15)
-  print "range (f,l,r,b) %0.1f %0.1f %0.1f %0.1f " % (ahead_r, left_r, right_r, back_r)
-  d = Detector(ahead_r, left_r, right_r, back_r)
+  lnarrow_r = sum(msg.ranges[89:91])/3
+  print "range lnarrow: %0.2f (f,l,r,b) %0.1f %0.1f %0.1f %0.1f " % (lnarrow_r, ahead_r, left_r, right_r, back_r)
+  d = Detector(lnarrow_r, ahead_r, left_r, right_r, back_r)
   pub.publish(d)
 
 # Create the node
