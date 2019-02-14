@@ -21,14 +21,17 @@ class FollowWall:
 
     def handle_find_wall(self):
         rightish = ["right", "narrow_r1", "narrow_r2", "narrow_r3"]
-        leftish = ["left", "narrow_l1", "narrow_l2",
-                    "narrow_l3"]
+        leftish = ["left", "narrow_l1", "narrow_l2", "narrow_l3"]
         twist = Twist()
         if (self.m.closest_dist < self.goal_wall_distance * 1.25):
             self.set_state("follow_wall")
         elif (self.m.closest_dir in leftish):
+            print("leftish")
+            twist.linear.x = 0.05
             twist.angular.z = 0.3
-        elif (self.m.closest_dir in rightish or m.closest_dir == "back"):
+        elif (self.m.closest_dir in rightish or self.m.closest_dir == "back"):
+            print("rightish")
+            twist.linear.x = 0.05
             twist.angular.z = -0.3
         else:
             twist.linear.x = 0.1
