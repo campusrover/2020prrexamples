@@ -11,6 +11,9 @@ class FollowWall:
         self.goal_wall_distance = 0.5
         self.emer_stop_dist = 0.2
         self.m = None
+        self.rightish = ["right", "narrow_r1", "narrow_r2", "narrow_r3"]
+        self.leftish = ["left", "narrow_l1", "narrow_l2", "narrow_l3"]
+
 
     def set_state(self, new_state):
         print("new state %s" % (new_state))
@@ -25,11 +28,11 @@ class FollowWall:
         twist = Twist()
         if (self.m.closest_dist < self.goal_wall_distance * 1.25):
             self.set_state("follow_wall")
-        elif (self.m.closest_dir in leftish):
+        elif (self.m.closest_dir in self.leftish):
             print("leftish")
             twist.linear.x = 0.05
             twist.angular.z = 0.3
-        elif (self.m.closest_dir in rightish or self.m.closest_dir == "back"):
+        elif (self.m.closest_dir in self.rightish or self.m.closest_dir == "back"):
             print("rightish")
             twist.linear.x = 0.05
             twist.angular.z = -0.3
