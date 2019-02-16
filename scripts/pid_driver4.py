@@ -8,8 +8,8 @@ from rosbook.msg import Detector
 class FollowWall:
 
     def __init__(self):
-        self.goal_wall_distance = 0.5
-        self.emer_stop_dist = 0.1
+        self.goal_wall_distance = 0.7
+        self.emer_stop_dist = 0.2
         self.m = None
         self.rightish = ["right", "narrow_r1", "narrow_r2", "narrow_r3"]
         self.leftish = ["left", "narrow_l1", "narrow_l2", "narrow_l3"]
@@ -23,7 +23,7 @@ class FollowWall:
 
     def scan_callback(self, msg):
         self.m = msg
-
+    
     def is_too_close(self):
         return (self.m.closest_dist < self.emer_stop_dist)
 
@@ -36,37 +36,23 @@ class FollowWall:
     def outside_wall_follow_zone(self):
         return self.m.closest_dist > self.goal_wall_distance
 
-    def onleft(self):
+    def wall_onleft(self):
         return self.m.closest_dir in self.leftish
 
-    def onnarrowleft(self):
-        return self.onleft() and not self.m.closest_dir == "left"
+    def wall_onnarrowleft(self):
+        return self.wall_onleft() and not self.m.closest_dir == "left"
 
-    def onright(self):
+    def wall_onright(self):
         return self.m.closest_dir in self.rightish
 
-    def onfront(self):
+    def wall_onforward(self):
         return self.m.closest_dir == "forward"
 
-    def onback(self):
+    def wall_onback(self):
         return self.m.closest_dir == "back"
 
-    def handle_find_wall(self):
-        twist = Twist()
-        if (self.inside_wall_follow_zone()):
-            self.set_state("follow_wall")
-        elif (self.onleft()):
-            self.log("FIND WALL: leftish")
-            twist.linear.x = 0.
-            twist.angular.z = 0.2
-        elif (self.onright() or self.onback()):
-            self.log("FIND WALL: rightish")
-            twist.linear.x = 0.0
-            twist.angular.z = 0.2
-        else:
-            twist.linear.x = 0.2
-        self.cv_pub .publish(twist)
-
+    def at_right_inside_corner(self):
+        return self.m.forward < self.m.narrow_l2
 
 # Positive turns counterclockwise (left), negative turns clockwise (right)
 
@@ -78,20 +64,49 @@ class FollowWall:
         elif (self.is_too_far()):
             self.log("FOLLOW WALL: toofar")
             self.set_state("find_wall")
-        elif (self.onnarrowleft()):
-            pid_p = self.goal_wall_distance - self.m.closest_dist
-            twist.linear.x = 0.2 - abs(pid_p)*0.4
-            pid_p = pid_p * -0.7
-            self.log("FOLLOW WALL: onleft %1.3f" % pid_p)
-            twist.angular.z = pid_p
+        elif (self.at_right_inside_corner()):
+            self.log("FOLLOW WALL: corner")
+            self.set_state("decision_point")
+        elif (self.wall_onnarrowleft()):
+            g = self.goal_wall_distance
+            w1 = self.m.narrow_l1
+            w2 = self.m.narrow_l2
+            w3 = self.m.narrow_l3
+            pid_p = (w1 - w3) + (w2 - g) * 0.15
+            twist.linear.x = 0.2
+            twist.angular.z = pid_p * 7
+            self.log("FOLLOW WALL: following %1.3f" % pid_p)
         else:
             self.log("FOLLOW WALL: wrongway")
             twist.angular.z = -0.5
         self.cv_pub.publish(twist)
 
+    def handle_decision_point(self):
+        twist = Twist()
+        if (self.is_too_close()):
+            self.log("DECISION POINT: tooclose")
+            self.set_state("emer_stop")
+        if self.wall_onnarrowleft():
+            self.log("DECISION POINT: back to following")
+            self.set_state("follow_wall")
+        else:
+            self.log("DECISION POINT: spin in place")
+            twist.angular.z = -0.3
+        self.cv_pub.publish(twist)
+    
+    def handle_find_wall(self):
+        twist = Twist()
+        if (not self.is_too_far()):
+            self.set_state("follow_wall")
+        else:
+            twist.linear.x = self.m.closest_dist / 10.0
+            self.log("FINDWALL: go fast %1.2f %1.2f" %
+                     (twist.linear.x, twist.angular.z))
+        self.cv_pub.publish(twist)
+
     def handle_emer_stop(self):
         twist = Twist()
-        if (self.m.closest_dist > self.goal_wall_distance*2):
+        if (self.m.closest_dist > self.goal_wall_distance):
             self.set_state("find_wall")
         self.cv_pub.publish(twist)
 
@@ -109,8 +124,12 @@ class FollowWall:
                 self.handle_find_wall()
             elif (self.state == "follow_wall"):
                 self.handle_follow_wall()
+            elif (self.state == "decision_point"):
+                self.handle_decision_point()
             elif (self.state == "emer_stop"):
                 self.handle_emer_stop()
+            else:
+                self.log("LOOP: Invalid state")
             rate.sleep()
 
 

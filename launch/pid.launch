@@ -1,4 +1,4 @@
 <launch>
-    <node name="pub" pkg="rosbook" type="pid_driver3.py" output="screen"/>
-    <node name="sub" pkg="rosbook" type="pid_range.py" output="screen"/>
+    <node name="pid_driver" pkg="rosbook" type="pid_driver4.py" output="log"/>
+    <node name="pid_range" pkg="rosbook" type="pid_range.py" output="log"/>
 </launch>

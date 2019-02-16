@@ -24,16 +24,17 @@ def calc_range(range, mp1, mp2, wedge):
 
 
 def scan_callback(msg):
+    global counter
     forward = calc_range(msg.ranges, 359, 0, 15)
     right = calc_range(msg.ranges, 270, 271, 15)
     left = calc_range(msg.ranges, 90, 91, 15)
     back = calc_range(msg.ranges, 180, 181, 15)
-    narrow_l1 = sum(msg.ranges[75:84])/10
-    narrow_l2 = sum(msg.ranges[85:94])/10
-    narrow_l3 = sum(msg.ranges[95:104])/10
-    narrow_r1 = sum(msg.ranges[275:284])/10
-    narrow_r2 = sum(msg.ranges[265:274])/10
-    narrow_r3 = sum(msg.ranges[255:264])/10
+    narrow_l1 = sum(msg.ranges[83:87])/5
+    narrow_l2 = sum(msg.ranges[88:92])/5
+    narrow_l3 = sum(msg.ranges[93:97])/5
+    narrow_r1 = sum(msg.ranges[273:277])/5
+    narrow_r2 = sum(msg.ranges[268:272])/5
+    narrow_r3 = sum(msg.ranges[263:267])/5
     closest_dist = min(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3,
                        forward, left, right, back)
     if (closest_dist == forward):
@@ -59,17 +60,19 @@ def scan_callback(msg):
     else:
         closest_dir = "bug"
 
-    d = Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3,
-                 forward, left, right, back, closest_dist, closest_dir)
-    print ("   [%s=%1.1f] [flrb %1.1f %1.1f %1.1f %1.1f]" %
-          (closest_dir, closest_dist, forward, left, right, back)),
-    print(" nl: [%1.2f %1.2f %1.2f], nr: [%1.2f %1.2f %1.2f]" % (
-        narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3))
-    pub.publish(d)
-
+    counter += 1
+    if (counter % 2 == 0):
+        d = Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3,
+                    forward, left, right, back, closest_dist, closest_dir)
+        rospy.logdebug("CLOSEST: %s at %1.1f flrb: %1.1f %1.1f %1.1f %1.1f "+
+                    "nl: %1.2f %1.2f %1.2f, nr: %1.2f %1.2f %1.2f",
+                    closest_dir, closest_dist, forward, left, right, back, narrow_l1, 
+                    narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3)
+        pub.publish(d)
 
 # Create the node
-rospy.init_node('range_ahead')
+counter = 0
+rospy.init_node('pid_range', log_level=rospy.DEBUG)
 scan_sub = rospy.Subscriber('scan', LaserScan, scan_callback)
 pub = rospy.Publisher('detector', Detector, queue_size=10)
 
