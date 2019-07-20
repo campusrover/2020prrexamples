@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from rosbook.srv import WordCount
+from prrexamples.srv import WordCount
 import sys
 
 # Declare a node

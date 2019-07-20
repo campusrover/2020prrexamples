@@ -2,7 +2,7 @@
 import rospy
 import time
 import actionlib
-from rosbook.msg import TimerAction, TimerGoal, TimerResult, TimerFeedback
+from prrexamples.msg import TimerAction, TimerGoal, TimerResult, TimerFeedback
 
 def do_timer(goal):
     start_time = time.time()
