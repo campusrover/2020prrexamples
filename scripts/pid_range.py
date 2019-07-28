@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from sensor_msgs.msg import LaserScan
-from rosbook.msg import Detector
+from prrexamples.msg import Detector
 
 # float32 narrow_l1
 # float32 narrow_l2
@@ -64,10 +64,15 @@ def scan_callback(msg):
     if (counter % 2 == 0):
         d = Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3,
                     forward, left, right, back, closest_dist, closest_dir)
-        rospy.logdebug("CLOSEST: %s at %1.1f flrb: %1.1f %1.1f %1.1f %1.1f "+
-                    "nl: %1.2f %1.2f %1.2f, nr: %1.2f %1.2f %1.2f",
-                    closest_dir, closest_dist, forward, left, right, back, narrow_l1, 
+        # rospy.loginfo("CLOSEST: %s at %1.1f flrb: %1.1f %1.1f %1.1f %1.1f "+
+        #             "nl: %1.2f %1.2f %1.2f, nr: %1.2f %1.2f %1.2f",
+        #             closest_dir, closest_dist, forward, left, right, back, narrow_l1, 
+        #             narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3)
+
+        log_msg = "CLOSEST: %s at %1.1f flrb: %1.1f %1.1f %1.1f %1.1f nl: %1.2f %1.2f %1.2f, nr: %1.2f %1.2f %1.2f" % \
+                    (closest_dir, closest_dist, forward, left, right, back, narrow_l1, 
                     narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3)
+        rospy.loginfo_throttle(5, log_msg)
         pub.publish(d)
 
 # Create the node

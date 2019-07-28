@@ -2,7 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist
-from rosbook.msg import Detector
+from prrexamples.msg import Detector
 
 
 class FollowWall:
@@ -15,7 +15,7 @@ class FollowWall:
         self.leftish = ["left", "narrow_l1", "narrow_l2", "narrow_l3"]
 
     def log(self, message):
-        rospy.logdebug(message)
+        rospy.loginfo_throttle(5, message)
 
     def set_state(self, new_state):
         self.log("NEW STATE: %s" % (new_state))
