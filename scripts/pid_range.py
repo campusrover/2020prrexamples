@@ -60,6 +60,22 @@ def scan_callback(msg):
     else:
         closest_dir = "bug"
 
+
+# foos = {
+#     'forward': calc_range(msg.ranges, 359, 0, 15),
+#     'right': calc_range(msg.ranges, 270, 271, 15),
+#     'left': calc_range(msg.ranges, 90, 91, 15),
+#     'back': calc_range(msg.ranges, 180, 181, 15),
+#     'narrow_l1': sum(msg.ranges[83:87]/5),
+#     'narrow_l2': sum(msg.ranges[88:92])/5,
+#     'narrow_l3': sum(msg.ranges[93:97])/5,
+#     'narrow_r1': sum(msg.ranges[273:277])/5,
+#     'narrow_r2': sum(msg.ranges[268:272])/5,
+#     'narrow_r3': sum(msg.ranges[263:267])/5,
+# }
+
+# closest_dir = min(foos, key=foos.get)
+
     counter += 1
     if (counter % 2 == 0):
         d = Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3,
