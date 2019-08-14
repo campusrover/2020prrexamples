@@ -2,7 +2,7 @@
 import rospy
 import time
 import actionlib
-from rosbook.msg import TimerAction, TimerGoal, TimerResult
+from prrexamples.msg import TimerAction, TimerGoal, TimerResult
 
 # Action Request Comes in
 def do_timer(goal):

@@ -3,7 +3,7 @@
 # rosservice call word_count 'one two three'
 
 import rospy
-from rosbook.srv import WordCount, WordCountResponse
+from prrexamples.srv import WordCount, WordCountResponse
 
 # Service handler, called when a client wants to invoke the service. It receives
 # the string, computes the nuber of words, and returns it

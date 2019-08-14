@@ -2,7 +2,7 @@
 
 import rospy
 import actionlib
-from rosbook.msg import TimerAction, TimerGoal, TimerResult
+from prrexamples.msg import TimerAction, TimerGoal, TimerResult
 
 # Declare the node
 rospy.init_node('timer_action_client')
@@ -12,6 +12,7 @@ client = actionlib.SimpleActionClient('timer', TimerAction)
 
 # Now just wait for it  to come up.
 client.wait_for_server()
+rospy.loginfo("Action server detected")
 
 # Create the TimerGoal objet
 goal = TimerGoal()
@@ -26,4 +27,4 @@ client.send_goal(goal)
 client.wait_for_result()
 
 # Print the result.
-print('Time elapsed: %f'%(client.get_result().time_elapsed.to_sec()))
+rospy.loginfo('Time elapsed: %f'%(client.get_result().time_elapsed.to_sec()))

@@ -1,4 +1,4 @@
 <launch>
-    <node name="pid_driver" pkg="rosbook" type="pid_driver4.py" output="log"/>
-    <node name="pid_range" pkg="rosbook" type="pid_range.py" output="log"/>
+    <node name="pid_driver" pkg="prrexamples" type="pid_driver4.py" output="log"/>
+    <node name="pid_range" pkg="prrexamples" type="pid_range.py" output="log"/>
 </launch>

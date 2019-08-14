@@ -2,7 +2,7 @@
 
 import rospy
 from geometry_msgs.msg import Twist
-from rosbook.msg import Detector
+from prrexamples.msg import Detector
 
 def smart_logger(thestr):
     global last_log
