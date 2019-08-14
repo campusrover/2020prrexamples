@@ -14,7 +14,7 @@ class Follower:
         # Open CV Bridge, and create a window
         self.bridge = CvBridge()
         # subscribe to the topic, and give each image to the callback
-        self.image_sub = rospy.Subscriber('camera/rgb/image_raw', Image, self.image_callback)
+        self.image_sub = rospy.Subscriber('camera/image', Image, self.image_callback)
 
     # Called once per image received
     def image_callback(self, frame):
@@ -33,6 +33,8 @@ def main():
     while(not rospy.is_shutdown()):
         if follower.cv_img is not None:
             cv2.imshow('Original', follower.cv_img)
+            
+        # Wait for ESC to be clicked on opencv window
         key = cv2.waitKey(3) & 0xFF
         if key == 27:
             break
