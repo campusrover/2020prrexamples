@@ -19,12 +19,12 @@ goal = TimerGoal()
 goal.time_to_wait = rospy.Duration.from_sec(5.0)
 
 # Uncomment this line to test server-side abort:
-#goal.time_to_wait = rospy.Duration.from_sec(500.0)
+# goal.time_to_wait = rospy.Duration.from_sec(500.0)
 client.send_goal(goal, feedback_cb=feedback_cb)
 
 # Uncomment these lines to test goal preemption:
-#time.sleep(3.0)
-#client.cancel_goal()
+# time.sleep(3.0)
+# client.cancel_goal()
 
 client.wait_for_result()
 rospy.loginfo('[Result] State: %d'%(client.get_state()))
