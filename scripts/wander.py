@@ -34,14 +34,12 @@ rate = rospy.Rate(1)
 
 while not rospy.is_shutdown():
     print("***")
-    print(rospy.Time.now().secs, rospy.Time.now().nsecs)
-    print(state_change_time.secs, state_change_time.nsecs)
     print(rospy.Time.now() > state_change_time, g_range_ahead, driving_forward)
 
     # check whether antyhing is closer than x meters or 
     # time for driving foreward is over, then start spinning in place
     if driving_forward:
-        if (g_range_ahead < 0.2 or rospy.Time.now() > state_change_time):
+        if (g_range_ahead < 0.4 or rospy.Time.now() > state_change_time):
             driving_forward = False
             state_change_time = rospy.Time.now() + rospy.Duration(3)
             
