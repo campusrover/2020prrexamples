@@ -10,7 +10,7 @@ from sensor_msgs.msg import LaserScan
 # global keyword is needed so g_range_ahead is available outside of the function
 def scan_callback(msg):
     global g_range_ahead
-    g_range_ahead = min(msg.ranges)
+    g_range_ahead = msg.ranges[0]
 
 # Main program
 g_range_ahead = 1 # anything to start
