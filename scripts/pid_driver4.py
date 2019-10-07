@@ -15,13 +15,14 @@ class FollowWall:
         self.leftish = ["left", "narrow_l1", "narrow_l2", "narrow_l3"]
 
     def log(self, message):
-        rospy.loginfo_throttle(5, message)
+        rospy.loginfo(message)
 
     def set_state(self, new_state):
         self.log("NEW STATE: %s" % (new_state))
         self.state = new_state
 
     def scan_callback(self, msg):
+        self.log("CB")
         self.m = msg
     
     def is_too_close(self):
@@ -57,6 +58,7 @@ class FollowWall:
 # Positive turns counterclockwise (left), negative turns clockwise (right)
 
     def handle_follow_wall(self):
+        self.log("follow_wall")
         twist = Twist()
         if (self.is_too_close()):
             self.log("FOLLOW WALL: tooclose")
@@ -95,6 +97,7 @@ class FollowWall:
         self.cv_pub.publish(twist)
     
     def handle_find_wall(self):
+        self.log("handle_find_wall")
         twist = Twist()
         if (not self.is_too_far()):
             self.set_state("follow_wall")
@@ -119,7 +122,7 @@ class FollowWall:
 
         while not rospy.is_shutdown():
             if (self.m is None):
-                pass
+                self.log("no state")
             elif (self.state == "find_wall"):
                 self.handle_find_wall()
             elif (self.state == "follow_wall"):
