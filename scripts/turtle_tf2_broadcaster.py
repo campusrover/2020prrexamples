@@ -39,7 +39,7 @@ if __name__ == '__main__':
 # turtle's pose, /turtleX/pose. By using a parameter we can launch this node and supply 
 # the turtle name later.
     rospy.init_node('tf2_turtle_broadcaster')
-    turtlename = rospy.get_param('~turtle')
+    turtlename = rospy.get_param('~turtle', 'turtle1')
     rospy.Subscriber('/%s/pose' % turtlename,
                      turtlesim.msg.Pose,
                      handle_turtle_pose,
