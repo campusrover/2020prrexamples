@@ -18,9 +18,9 @@ import numpy as np
 # string closest_dir
 
 
-def calc_range(range, mp1, mp2, wedge):
-    r1 = [dist for dist in range[mp1-wedge:mp1] if dist != 0]
-    r2 = [dist for dist in range[mp2:mp2+wedge] if dist != 0]
+def calc_range(rang, mp1, mp2, wedge):
+    r1 = [dist for dist in rang[mp1-wedge:mp1] if dist != 0]
+    r2 = [dist for dist in rang[mp2:mp2+wedge] if dist != 0]
     combo = r1 + r2
     if (len(combo) != 0):
         mean = sum(combo) / len(combo)
@@ -36,13 +36,6 @@ def calc_range_1(range, start, length):
     else:
         mean = float('nan')
     return mean
-
-
-def calc_range_2(range, start, wedge):
-    mean_dist = calc_range_1(range, start-wedge/2), wedge)
-
-
-
 
 def scan_callback(msg):
     global counter
@@ -90,39 +83,38 @@ def scan_callback(msg):
 # norm_bearing: -1 > +1 float. Negative means left, positive means right, 0 means forward, -1 or +1 mean reverse
 # norm_dist: distance in meters in stated direction
 
-w=5
-norm_dist=5
-for norm in np.linspace(-1, 1, 21):
-    mid=(360 + norm * 180) % 360
-    p1=(mid - w + 360) % 360
-    p2=(mid + w + 360) % 360
-    p1i=int(p1)
-    p2i=int(p2-1)
-    midi=int(mid)
-    dist=calc_range(range, midi-1, midi, w)
-    if (dist < norm_dist):
-        norm_dist=dist
-        norm_bearing=norm
+    w=5
+    norm_dist=5
+    for norm in np.linspace(-1, 1, 21):
+        mid=(360 + norm * 180) % 360
+        p1=(mid - w + 360) % 360
+        p2=(mid + w + 360) % 360
+        p1i=int(p1)
+        p2i=int(p2-1)
+        midi=int(mid)
+        dist=calc_range(msg.ranges, midi-1, midi, w)
+        if (dist < norm_dist):
+            norm_dist=dist
+            norm_bearing=norm
 
     counter += 1
     if (counter % 2 == 0):
-        d=Detector(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3, forward, left, right, back, closest_dist, closest_dir,
+        d=Detector2(narrow_l1, narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3, forward, left, right, back, closest_dist, closest_dir,
         norm_bearing, norm_dist)
         log_msg="""\
-n---\nCLOSEST: %s at %1.1f\n
+\n---\nCLOSEST: %s at %1.1f\n
 flrb: %1.1f %1.1f %1.1f %1.1f\n
 nl: %1.2f %1.2f %1.2f, nr: %1.2f %1.2f %1.2f\n
-NORM: %1.1f %1.1f""" %
-            (closest_dir, closest_dist, forward, left, right, back, narrow_l1,
+NORM (bearing,dist): %1.1f %1.1f""" % (closest_dir, closest_dist, forward, left, right, back, narrow_l1,
              narrow_l2, narrow_l3, narrow_r1, narrow_r2, narrow_r3, norm_bearing, norm_dist)
-        rospy.loginfo_throttle(5, log_msg)
+        rospy.loginfo_throttle(2, log_msg)
         pub.publish(d)
 
 # Create the node
 counter=0
 rospy.init_node('pid_range', log_level = rospy.DEBUG)
 scan_sub=rospy.Subscriber('scan', LaserScan, scan_callback)
-pub=rospy.Publisher('detector', Detector, queue_size = 10)
+pub=rospy.Publisher('detector', Detector2, queue_size = 10)
 
 # Loop until ^c
 rospy.spin()
