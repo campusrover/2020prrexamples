@@ -48,7 +48,8 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
    FILES
    Complex.msg
-   Detector.msg )
+   Detector.msg
+   Detector2.msg )
 
 ## Generate services in the 'srv' folder
 add_service_files(
