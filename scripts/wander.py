@@ -16,11 +16,11 @@ def scan_callback(msg):
 g_range_ahead = 1 # anything to start
 
 # Declare a subscriber to message 'scan' with message class LaserScan
-scan_sub = rospy.Subscriber('scan', LaserScan, scan_callback)
+scan_sub = rospy.Subscriber('/robot0/laser_0', LaserScan, scan_callback)
 
 # Same code can be a publisher and a subscriber, this is no problem
 # be ready to publish the cmd_vel topic of class Twist
-cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+cmd_vel_pub = rospy.Publisher('/robot0/cmd_vel', Twist, queue_size=1)
 
 # Declare us to be a node
 rospy.init_node('wander')

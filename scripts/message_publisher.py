@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
-from rosbook.msg import Complex 
+from prrexamples.msg import Complex 
 from random import random
 
 rospy.init_node('message_publisher')
