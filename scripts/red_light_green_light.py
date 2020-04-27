@@ -5,7 +5,7 @@ from geometry_msgs.msg import Twist
 
 # Create a Publisher object. queue_size=1 means that messages that are
 # published but not handled by received are lost beyond queue size.
-cmd_vel_pub = rospy.Publisher('/robot0/cmd_vel', Twist, queue_size=1)
+cmd_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 
 # Initialize this program as a node
 rospy.init_node('red_light_green_light')
