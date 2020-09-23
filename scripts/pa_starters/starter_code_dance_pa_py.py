@@ -60,13 +60,13 @@ while not rospy.is_shutdown():
    # publish cmd_vel from here 
    t = Twist()
    # one idea: use vector-2 to represent linear and angular velocity
-   # velocity_vector = [linear_componenet, angular_component]
+   # velocity_vector = [linear_component, angular_component]
    # then represent:
    # twist.linear.x = LINEAR_SPEED * linear_component
    # twist.angular.z = ANGULAR_SPEED * angular_component 
    # where for example:
-   # LINEAR_SPED = 0.2, ANGULAR_SPEED = pi/4
-   # velocity_vector = [1,0] for positive linear and no angular movement
+   # LINEAR_SPEED = 0.2, ANGULAR_SPEED = pi/4
+   # velocity_vector = [1, 0] for positive linear and no angular movement
    # velocity_vector = [-1, 1] for negative linear and positive angular movement
    # we can then create a dictionary state: movement_vector to hash the current position to get the movement_vector
    # in order to get the zig zag and spiral motion you could you something like this:
