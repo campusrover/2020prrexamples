@@ -18,7 +18,7 @@ def update_state():
     global current_state
 
     # once we have received an image and scan start change state to forward
-    if img and ranges:
+    if img is not None and ranges is not None:
         current_state = "FORWARD"
 
 # pub/subs
@@ -36,9 +36,10 @@ linear_vel  = 0.2           # meters/second
 states = {"STOP"    : (0, 0), 
           "FORWARD" : (1, 0),
           "LEFT"    : (1, 1),
-          "RIGHT"   : (1, -1)]
+          "RIGHT"   : (1, -1)}
 current_state = "STOP"
 ranges = None; img = None
+bridge = cv_bridge.CvBridge()
 
 # idea: keep control loop simple and change current_state
 #       based on LiDAR and img data. Also I would suggest that 
@@ -54,8 +55,8 @@ while not rospy.is_shutdown():
 
     # change cmd_vel based on motion associated with the current state
     t = Twist()
-    current_state = update_state()
-    motion = states.get(current_state)
+    update_state()
+    motion = states.get(current_state, (0, 0))
     t.linear.x = linear_vel * motion[0]
     t.angular.z = angular_vel * motion[1]
 
