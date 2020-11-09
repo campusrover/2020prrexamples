@@ -8,8 +8,7 @@ from visualization_msgs.msg import Marker
 from prrexamples.msg import Kalman
 from tf.transformations import quaternion_from_euler
 import numpy as np
-import math 
-
+import math
 
 def filter(a, i):
     x = np.take(a, [i, i-1, i+1], mode='wrap')
@@ -32,7 +31,7 @@ def cmd_vel_callback(msg):
     g_forward_cmd = msg.linear.x
     g_turn_cmd = msg.angular.z
 
-def pub_marker(marker):
+def pub_marker(marker, dist, bearing):
     m = Marker()
     m.header.frame_id = "base_scan"
     m.header.seq = 1
@@ -40,12 +39,12 @@ def pub_marker(marker):
     m.type = m.ARROW
     m.scale.y = 0.01
     m.scale.z = 0.01
-    m.scale.x = g_shortest
+    m.scale.x = dist
     m.color.a = 1.0
     m.color.r = 0.0
     m.color.g = 1.0
     m.color.b = 0.0
-    quaternion = quaternion_from_euler(0, 0, math.radians(g_shortest_bearing))
+    quaternion = quaternion_from_euler(0, 0, math.radians(bearing))
     m.pose.orientation.x = quaternion[0]
     m.pose.orientation.y = quaternion[1]
     m.pose.orientation.z = quaternion[2]
@@ -71,15 +70,11 @@ g_time_now = rospy.Time()
 
 while not rospy.is_shutdown():
     elapsed = rospy.Time.now().to_sec() - g_time_now.to_sec()
-    motion = 0
-    rotation = 0
-    if elapsed != 0:
-        motion = g_forward_cmd/elapsed
-        rotation = g_turn_cmd/elapsed 
-
-    str = "Current delta-t: %.3f fwd: %.3f rot: %.3f bearing: %.3f range: %.3f" % (elapsed, motion, rotation, g_shortest_bearing, g_shortest)
-    rospy.loginfo(str)
-    pub_marker(marker)
+    # str = "Current delta-t: %.3f fwd: %.3f rot: %.3f bearing: %.3f range: %.3f" % (elapsed, g_forward_cmd, g_turn_cmd, g_shortest_bearing, g_shortest)
+    # rospy.loginfo(str)
+    str = "%.3f, %.3f, %.3f, %.3f, %.3f" % (elapsed, g_forward_cmd, g_turn_cmd, g_shortest_bearing, g_shortest)
+    print(str)
+    pub_marker(marker, g_shortest, g_shortest_bearing)
     pub_kalman(monitor)
     g_time_now = rospy.Time.now()
     rate.sleep()
