@@ -62,6 +62,11 @@ marker = rospy.Publisher('/kalman/marker', Marker, queue_size=10)
 
 rospy.init_node('kalman')
 rate = rospy.Rate(5)
+
+# Wait for the simulator to be ready
+while rospy.Time.now().to_sec() == 0:
+    rate.sleep()
+
 g_shortest = 0
 g_shortest_bearing = 0
 g_forward_cmd = 0 
