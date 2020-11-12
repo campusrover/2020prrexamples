@@ -19,12 +19,16 @@ def filter(a, i):
     else:
         return np.average(x[y])
 
+def kalman_update(index, elapsed, m_dist, e_dist, m_bear, e_bear):
+    newe_dist = 0.6*e_dist + 0.4*m_dist
+    return (newe_dist, e_bear)
+
 def scan_callback(msg):
-    global g_shortest, g_shortest_bearing
+    global m_dist, m_bear
     ar = np.array(msg.ranges)
     filter_and_average = [filter(ar,x) for x in range(0, ar.size)]
-    g_shortest_bearing = np.argmin(filter_and_average)
-    g_shortest = filter_and_average[g_shortest_bearing]
+    m_bear = np.argmin(filter_and_average)
+    m_dist = filter_and_average[m_bear]
 
 def cmd_vel_callback(msg):
     global g_turn_cmd, g_forward_cmd
@@ -52,7 +56,7 @@ def pub_marker(marker, dist, bearing):
     marker.publish(m)
 
 def pub_kalman(monitor):
-    k = Kalman(elapsed, g_forward_cmd, g_turn_cmd, g_shortest, g_shortest_bearing)
+    k = Kalman(elapsed, g_forward_cmd, g_turn_cmd, e_dist, e_bear)
     monitor.publish(k)
 
 scan_sub = rospy.Subscriber('/scan', LaserScan, scan_callback)
@@ -61,25 +65,30 @@ monitor = rospy.Publisher('/kalman/info', Kalman, queue_size=10)
 marker = rospy.Publisher('/kalman/marker', Marker, queue_size=10)
 
 rospy.init_node('kalman')
-rate = rospy.Rate(5)
+rate = rospy.Rate(10)
 
 # Wait for the simulator to be ready
 while rospy.Time.now().to_sec() == 0:
     rate.sleep()
 
-g_shortest = 0
-g_shortest_bearing = 0
+m_dist = 0
+e_dist = 1
+m_bear = 0
+e_bear = 0
 g_forward_cmd = 0 
 g_turn_cmd = 0
 g_time_now = rospy.Time()
+index = 1
 
 while not rospy.is_shutdown():
     elapsed = rospy.Time.now().to_sec() - g_time_now.to_sec()
     # str = "Current delta-t: %.3f fwd: %.3f rot: %.3f bearing: %.3f range: %.3f" % (elapsed, g_forward_cmd, g_turn_cmd, g_shortest_bearing, g_shortest)
     # rospy.loginfo(str)
-    str = "%.3f, %.3f, %.3f, %.3f, %.3f" % (elapsed, g_forward_cmd, g_turn_cmd, g_shortest_bearing, g_shortest)
+    str = "%.3f, %.3f, %.3f, %.3f, %.3f" % (elapsed, g_forward_cmd, g_turn_cmd, m_dist, e_dist)
     print(str)
-    pub_marker(marker, g_shortest, g_shortest_bearing)
-    pub_kalman(monitor)
+    e_dist, e_bear = kalman_update(index, elapsed, m_dist, e_dist, m_bear, e_bear)
+    pub_marker(marker, e_dist, m_bear)
+    # pub_kalman(monitor)
+    index = index + 1
     g_time_now = rospy.Time.now()
     rate.sleep()
