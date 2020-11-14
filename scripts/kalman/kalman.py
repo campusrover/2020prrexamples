@@ -7,9 +7,9 @@ def kalman_update(elapsed, distance, bearing):
 
 def kalman_control(elapsed, distance, bearing, g_forward_cmd, g_turn_cmd):
     return (distance, bearing)
-
-# Main program starts here
-if __name__ == '__main__':
+ starts here
+if __name__ == "__main__":
+# Main program':
 # fields are: elapsed,g_forward_cmd,g_turn_cmd,g_shortest_bearing,g_shortest
     with open('kalman_test_data.csv', "r") as csvfile:
         reader = csv.DictReader(csvfile)
