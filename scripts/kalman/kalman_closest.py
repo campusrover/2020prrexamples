@@ -5,9 +5,9 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy as np
 import math
+
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA
-
 
 def filter(a, i):
     x = np.take(a, [i, i-1, i+1], mode='wrap')
@@ -24,19 +24,32 @@ def filter(a, i):
 # b_meas = new measurement of bearing to target
 
 def kalman_update(d, b, d_meas, d_bear):
-    K = 0.5
+    K = 0.6
     d_prime = K * d + (1-K) * d_meas
     b_prime = K * b + (1-K) * d_bear
     return (d_prime, b_prime)
+
+def kalman_predict(d, b, m):
+    d_prime = d
+    b_prime = b
+    return d_prime, b_prime
 
 # d = previous state distance to target
 # b = previous state bearing to target
 # m = amount moved forward
 
-def kalman_predict(d, b, m):
-    d_prime = math.sqrt(m * m + d * d - 2 * m * d * math.cos(b))
-    b_prime = math.pi - math.asin(d * (math.sin(b)/d_prime))
+def trig_kalman_predict(d, b, m):
+    d_prime = law_of_cosines_b(d, m, b)
+    b_prime = math.pi - law_of_sines_A(d, b, d_prime)
     return d_prime, b_prime
+
+def law_of_sines_A(a, B, b):
+    return (math.asin((a * math.sin(B)) / b)) 
+
+# Capital letter B is an angle. Small a, b and c are edges. 
+# a is the edge across from A (I think that covers it.)
+def law_of_cosines_b(a, c, B):
+    return(math.sqrt(a**2 + c**2 - 2*a*c*math.cos(B)))
 
 def scan_callback(msg):
     global meas_dist, meas_bear
@@ -75,10 +88,10 @@ while not rospy.is_shutdown():
     control_motion = g_forward_cmd * elapsed
     state_dist_temp, state_bear_temp = kalman_predict(state_dist, state_bear, control_motion)
     state_dist, state_bear = kalman_update(state_dist_temp, state_bear_temp, meas_dist, meas_bear)
-    # print("%2f, %2f, %2f, %2f, %2f, %2f " % (0, elapsed, g_forward_cmd , g_turn_cmd, math.degrees(meas_bear), meas_dist))
-    print("m b: %2f, d: %2f, temp b: %2f, d: %2f, state b: %2f, d: %2f " % (meas_bear, meas_dist, state_bear_temp, state_dist_temp, state_bear, state_dist))
-    mu.add_marker(1, ColorRGBA(0.5,0.5,0,1), state_bear, state_dist)
-    mu.add_marker(2, ColorRGBA(0,0.5,0.5,1), meas_bear, meas_dist)
+    print("%2f,%2f,%2f,%2f,%2f " % (elapsed, g_forward_cmd , g_turn_cmd, math.degrees(meas_bear), meas_dist))
+    # print("m b: %2f, d: %2f, temp b: %2f, d: %2f, state b: %2f, d: %2f " % (meas_bear, meas_dist, state_bear_temp, state_dist_temp, state_bear, state_dist))
+    mu.add_marker(1, ColorRGBA(0.9,0.0,0,1), state_bear, state_dist)
+    mu.add_marker(2, ColorRGBA(0,0.9,0.0,1), meas_bear, meas_dist)
     mu.publish()
     g_time_now = rospy.Time.now()
     rate.sleep()
