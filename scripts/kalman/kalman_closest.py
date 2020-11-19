@@ -5,58 +5,13 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy as np
 import math
-import trianglesolver as ts
+import kalman
+
 from math import pi
 
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA
 
-# d = previous state distance to target
-# b = previous state bearing to target
-# d_meas = new measurement of distance to target
-# b_meas = new measurement of bearing to target
-
-def kalman_update(d, b, d_meas, d_bear):
-    K = 00.3
-    d_prime = K * d + (1-K) * d_meas
-    b_prime = K * b + (1-K) * d_bear
-    return (d_prime, b_prime)
-
-# a = previous state distance to target
-# B = previous state bearing to target
-# c = amount moved forward
-# Returns (b = new distance to target, A=new bearing to target)
-# Note that if no motion, bearing and distance dont change
-
-def kalman_predict(a, B, c):
-    #print(f"KP {a} {B} {c}")
-    if (c == 0):
-        #print("c == 0")
-        return(a, B)
-    elif (B == pi):
-        #print("B == pi")
-        return(a, B)
-    elif (B > pi):
-        B_prime = (2*pi - B)
-        if not all(x > 0 for x in (a,c,B_prime)):
-            print("+++++++++", a,c,B_prime)
-            return(a, B)
-        else:
-            #print (f"B > pi: {B} {B_prime}")
-            (tsa,tsb,tsc,tsA,tsB,tsC) = ts.solve(a=a, B=B_prime, c=c)
-        return (tsb, 2*pi - tsA)
-    else:
-        if not all(x > 0 for x in (a,c,B)):
-            print("***********", a,c,B)
-            return(a, B)
-        else:
-            (tsa,tsb,tsc,tsA,tsB,tsC) = ts.solve(a=a, B=B, c=c)
-        return(tsb, tsA)
-
-def null_kalman_predict(d, b, m):
-    d_prime = d
-    b_prime = b
-    return d_prime, b_prime
 
 def filter(a, i):
     x = np.take(a, [i, i-1, i+1], mode='wrap')

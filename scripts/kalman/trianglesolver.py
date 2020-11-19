@@ -31,7 +31,6 @@ from math import sin, cos, pi, sqrt, acos, asin, isclose
 # 5 * degree is 5 degrees in radians
 # X / degree is the angle X expressed in degrees
 degree = pi/180
-print("X")
 
 # ---------- Helper functions -------------------------------------- #
 
