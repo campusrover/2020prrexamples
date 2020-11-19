@@ -27,7 +27,7 @@ convert::
 """
 
 from __future__ import division, print_function
-from math import sin, cos, pi, sqrt, acos, asin, isclose
+from math import sin, cos, pi, sqrt, acos, asin
 # 5 * degree is 5 degrees in radians
 # X / degree is the angle X expressed in degrees
 degree = pi/180
@@ -105,9 +105,6 @@ def solve(a=None, b=None, c=None, A=None, B=None, C=None, ssa_flag='forbid'):
 
     "ssa" is the situation when you give two sides and an angle which is not
     between them. This is usually not enough information to specify a unique
-    triangle. Usually there are two possible triangles—except for a special
-    case with right triangles where the two possible triangles are the same
-    (the equation has a "double root"), and some cases where one of the two
     possible triangles has a negative angle.
 
     Therefore there is an 'ssa_flag'. You can set it to'forbid' (raise an error
@@ -178,59 +175,3 @@ def solve(a=None, b=None, c=None, A=None, B=None, C=None, ssa_flag='forbid'):
 
 
 #---------------- Tests ------------------------------------------------- #
-
-def tuple_isclose(x,y):
-    return all(isclose(x[i], y[i]) for i in range(len(x)))
-
-def test_triangle(a,b,c,A,B,C):
-    """ Check that the triangle satisfies the law of cosines and law of
-    sines"""
-    assert isclose(a/sin(A), b/sin(B))
-    assert isclose(a/sin(A), c/sin(C))
-    assert isclose(c**2, a**2 + b**2 - 2 * a * b * cos(C))
-    assert isclose(a**2, b**2 + c**2 - 2 * b * c * cos(A))
-    assert isclose(b**2, c**2 + a**2 - 2 * c * a * cos(B))
-
-def test_solver(a,b,c):
-    """ Test that the program works, for a triangle of sides a,b,c."""
-    # first find the angles, testing SSS
-    a1,b1,c1,A,B,C = solve(a=a,b=b,c=c)
-    assert tuple_isclose((a,b,c), (a1,b1,c1))
-    test_triangle(a,b,c,A,B,C)
-    tri = (a,b,c,A,B,C)
-
-    # SAS tests
-    assert tuple_isclose(tri, solve(a=a,b=b,C=C))
-    assert tuple_isclose(tri, solve(a=a,c=c,B=B))
-    assert tuple_isclose(tri, solve(b=b,c=c,A=A))
-
-    # SAA / ASA tests
-    assert tuple_isclose(tri, solve(a=a, A=A, B=B))
-    assert tuple_isclose(tri, solve(a=a, A=A, C=C))
-    assert tuple_isclose(tri, solve(a=a, B=B, C=C))
-    assert tuple_isclose(tri, solve(b=b, A=A, B=B))
-    assert tuple_isclose(tri, solve(b=b, A=A, C=C))
-    assert tuple_isclose(tri, solve(b=b, B=B, C=C))
-    assert tuple_isclose(tri, solve(c=c, A=A, B=B))
-    assert tuple_isclose(tri, solve(c=c, A=A, C=C))
-    assert tuple_isclose(tri, solve(c=c, B=B, C=C))
-
-    Atype = 'acute' if A < pi/2 else 'obtuse'
-    Btype = 'acute' if B < pi/2 else 'obtuse'
-    Ctype = 'acute' if C < pi/2 else 'obtuse'
-
-    # SSA tests
-    assert tuple_isclose(tri, solve(a=a, b=b, A=A, ssa_flag=Btype))
-    assert tuple_isclose(tri, solve(a=a, b=b, B=B, ssa_flag=Atype))
-    assert tuple_isclose(tri, solve(a=a, c=c, A=A, ssa_flag=Ctype))
-    assert tuple_isclose(tri, solve(a=a, c=c, C=C, ssa_flag=Atype))
-    assert tuple_isclose(tri, solve(b=b, c=c, B=B, ssa_flag=Ctype))
-    assert tuple_isclose(tri, solve(b=b, c=c, C=C, ssa_flag=Btype))
-
-def run_lots_of_tests():
-    print("A")
-    for a,b,c in ((7,8,9), (5,6,10), (5,10,6), (10,5,6), (5,12,13),
-                  (12,5,13), (12,13,5)):
-        test_solver(a,b,c)
-    print('All tests pass!')
-

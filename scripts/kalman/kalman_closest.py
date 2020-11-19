@@ -5,13 +5,12 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy as np
 import math
-import kalman
-
+from prrkalman import kalman_predict, kalman_update
 from math import pi
-
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA
 
+GAZEBO=True
 
 def filter(a, i):
     x = np.take(a, [i, i-1, i+1], mode='wrap')
@@ -29,8 +28,13 @@ def scan_callback(msg):
     filter_and_average = [filter(ar,x) for x in range(0, ar.size)]
     meas_bear = np.argmin(filter_and_average)
     meas_dist = filter_and_average[meas_bear]
+    if (not GAZEBO):
 # minirover's lidear (ydlidar X4) sends back 720 numbers per rotation hence the divide by two.
-    meas_bear = math.radians(meas_bear/2)
+        meas_bear = math.radians(meas_bear/2)
+    else:
+# gazebo sends back 360
+        meas_bear = math.radians(meas_bear)
+
 
 def cmd_vel_callback(msg):
     global g_turn_cmd, g_forward_cmd
@@ -59,7 +63,11 @@ red = ColorRGBA(0.9,0.0,0,1)
 green = ColorRGBA(0,0.9,0.0,1)
 
 def invert_angle(angle):
-    return (angle + math.pi) % (2 * math.pi)
+    """To make the arrow markers work correctly we need to flip the angle because angles go the other way there"""
+    if (not GAZEBO):
+        return (angle + math.pi) % (2 * math.pi)
+    else:
+        return angle
 
 while not rospy.is_shutdown():
     elapsed = rospy.Time.now().to_sec() - g_time_now.to_sec()
