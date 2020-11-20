@@ -11,8 +11,7 @@ def log(str, vals):
 # d_meas = new measurement of distance to target
 # b_meas = new measurement of bearing to target
 
-def kalman_update(d, b, d_meas, d_bear):
-    K = 0.3
+def kalman_update(K, d, b, d_meas, d_bear):
     d_prime = K * d + (1-K) * d_meas
     b_prime = K * b + (1-K) * d_bear
     return (d_prime, b_prime)
@@ -28,14 +27,13 @@ def kalman_predict(a, B, c):
         log("m0: (a, B, c)", (a, B, c))
         return kalman_predict_fix_angles(a, B, c)
     else:
-        print("m1: (a, B, c)", (a, B, c))
+        log ("m1: (a, B, c)", (a, B, c))
         B = pi*2-B
         (tsb, tsA) = kalman_predict_fix_angles(a, B, c)
         tsA = pi*2-tsA
         return (tsb, tsA)
 
 def kalman_predict_fix_angles(a, B, c):
-#print(f"KP a={a} B={B} c={c}")
     if (c == 0):
         log("E0: c == 0", ())
         return(a, B)
@@ -74,7 +72,3 @@ def kalman_predict_fix_angles(a, B, c):
         log("OK before (a, B, c, tsb, tsA)", (a, B, c, tsb, tsA))
         return(tsb, tsA)
 
-def null_kalman_predict(d, b, m):
-    d_prime = d
-    b_prime = b
-    return d_prime, b_prime
