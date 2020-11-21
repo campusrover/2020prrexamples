@@ -10,8 +10,7 @@ def log(strng, vals):
 # b = previous state bearing to target
 # d_meas = new measurement of distance to target
 # b_meas = new measurement of bearing to target
-def kalman_update(state_dist, state_bear, meas_dist, meas_bear):
-    K = 0.4
+def kalman_update(K, state_dist, state_bear, meas_dist, meas_bear):
     d_prime = K * state_dist + (1-K) * meas_dist
     b_prime = K * state_bear + (1-K) * meas_bear
     return (d_prime, b_prime)
