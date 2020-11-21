@@ -10,7 +10,7 @@ from math import pi
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA
 
-GAZEBO=True
+GAZEBO=False
 
 def filter(a, i):
     x = np.take(a, [i, i-1, i+1], mode='wrap')
@@ -78,7 +78,7 @@ while not rospy.is_shutdown():
     print("move: %2f, m b: %2f, d: %2f, temp b: %2f, d: %2f, state b: %2f, d: %2f " % 
         (control_motion, meas_bear, meas_dist, state_bear_temp, state_dist_temp, state_bear, state_dist))
     mu.add_marker(1, red, invert_angle(state_bear), state_dist)
-    mu.add_marker(2, green, invert_angle(meas_bear), meas_dist)
+    # mu.add_marker(2, green, invert_angle(meas_bear), meas_dist)
     mu.publish()
     g_time_now = rospy.Time.now()
     rate.sleep()

@@ -6,7 +6,6 @@ from std_msgs.msg import ColorRGBA
 from tf.transformations import quaternion_from_euler
 import math
 
-
 class MarkerArrayUtils:
     def __init__(self):
         self.marker_publisher = rospy.Publisher('/kalman/marker', MarkerArray, queue_size=10)
