@@ -49,7 +49,7 @@ add_message_files(
    FILES
    Complex.msg
    CustomMsg.msg
-   Kalman.msg
+   Sensor.msg
    Detector.msg
    Detector2.msg )
 
