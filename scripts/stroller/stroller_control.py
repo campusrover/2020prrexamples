@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
-
+#!/usr/bin/env python
 import rospy
 from prrexamples.msg import Sensor
 from std_msgs.msg import ColorRGBA
 from math import pi, radians
 from marker_array_utils import MarkerArrayUtils
 from geometry_msgs.msg import Twist
-import py_trees.blackboard as bb
-import py_trees.logging as log
+import py_trees
 import stroller_behaviors
 
 GAZEBO=True
@@ -54,15 +52,15 @@ def stop():
     print("done")
 
 def create_bt_root():
-    my_bb = bb.Client(name="Configuration")
-    my_bb.register_key(key="angular_z", access=py_trees.common.Access.WRITE)
-    my_bb.register_key(key="linear_x", access=py_trees.common.Access.WRITE)
-    my_bb.angular_z = 0
-    my_bb.linear_x = 0
+    # my_bb = bb.Client(name="Configuration")
+    # my_bb.register_key(key="angular_z", access=py_trees.common.Access.WRITE)
+    # my_bb.register_key(key="linear_x", access=py_trees.common.Access.WRITE)
+    # my_bb.angular_z = 0
+    # my_bb.linear_x = 0
     root = py_trees.composites.Sequence("Find Wall")
-    root.add_child(Turn2Target())
-    root.add_child(ApproachTarget())
-    root.add_child(TrackFixedDistance())
+    root.add_child(stroller_behaviors.Turn2Target("Turn2Target"))
+    root.add_child(stroller_behaviors.ApproachTarget("ApproachTarget"))
+    root.add_child(stroller_behaviors.TrackFixedDistance("TrackFixedDistance"))
     return root
 
 rospy.init_node('stroller_control')
@@ -71,9 +69,9 @@ command_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 target_distance = target_bearing = 0
 rate = rospy.Rate(1)
 twist = Twist()
-log.level = log.Level.DEBUG
+py_trees.logging.level = py_trees.logging.Level.DEBUG
 bt_root = create_bt_root()
-bt.root.setup_with_descendants()
+bt_root.setup(timeout=15)
 
 
 # Wait for the simulator to be ready
@@ -87,6 +85,3 @@ while not rospy.is_shutdown():
         print(e.message)
         stop()
         break
-
-
-

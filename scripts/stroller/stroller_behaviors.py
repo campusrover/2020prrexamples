@@ -2,9 +2,9 @@ import random as r
 import py_trees
 
 class Turn2Target(py_trees.behaviour.Behaviour):
-    def __init__(self):
-        print ("init turn2target")
-        super().__init__()
+    def __init__(self, name):
+        print ("init ", name)
+        super(Turn2Target, self).__init__(name)
 
     def setup(self):
         print ("setup turn2target")
@@ -17,9 +17,9 @@ class Turn2Target(py_trees.behaviour.Behaviour):
         return py_trees.common.Status.SUCCESS
 
 class ApproachTarget(py_trees.behaviour.Behaviour):
-    def __init__(self):
-        print ("init ApproachTarget")
-        super().__init__()
+    def __init__(self, name):
+        print ("init ", name)
+        super(ApproachTarget, self).__init__(name)
 
     def setup(self):
         print ("setup ApproachTarget")
@@ -32,9 +32,9 @@ class ApproachTarget(py_trees.behaviour.Behaviour):
         return py_trees.common.Status.SUCCESS
 
 class TrackFixedDistance(py_trees.behaviour.Behaviour):
-    def __init__(self):
-        print ("init TrackFixedDistance")
-        super().__init__()
+    def __init__(self, name):
+        print ("init ", name)
+        super(TrackFixedDistance, self).__init__(name)
 
     def setup(self):
         print ("setup TrackFixedDistance")
