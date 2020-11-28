@@ -52,15 +52,10 @@ def stop():
     print("done")
 
 def create_bt_root():
-    # my_bb = bb.Client(name="Configuration")
-    # my_bb.register_key(key="angular_z", access=py_trees.common.Access.WRITE)
-    # my_bb.register_key(key="linear_x", access=py_trees.common.Access.WRITE)
-    # my_bb.angular_z = 0
-    # my_bb.linear_x = 0
+    global ttt_behavior
     root = py_trees.composites.Sequence("Find Wall")
-    root.add_child(stroller_behaviors.Turn2Target("Turn2Target"))
-    root.add_child(stroller_behaviors.ApproachTarget("ApproachTarget"))
-    root.add_child(stroller_behaviors.TrackFixedDistance("TrackFixedDistance"))
+    ttt_behavior = stroller_behaviors.Turn2Target("Turn2Target")
+    root.add_child(ttt_behavior)
     return root
 
 rospy.init_node('stroller_control')
@@ -80,7 +75,9 @@ while rospy.Time.now().to_sec() == 0:
 
 while not rospy.is_shutdown():
     try:
-        bt_root.tick_once()
+        ttt_behavior.target_bearing = target_distance
+        ttt_behavior.target_distance = target_distance
+        print (bt_root.tick_once())
     except Exception as e:
         print(e.message)
         stop()
