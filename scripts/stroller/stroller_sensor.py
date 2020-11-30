@@ -6,7 +6,7 @@ from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 import numpy as np
 import math
-from prrkalman import kalman_predict, kalman_update
+from stroller_kalman import kalman_predict, kalman_update
 from math import pi
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA

@@ -5,8 +5,7 @@ from std_msgs.msg import ColorRGBA
 from math import pi, radians
 from marker_array_utils import MarkerArrayUtils
 from geometry_msgs.msg import Twist
-import py_trees
-import stroller_behaviors
+import stroller_bt
 
 GAZEBO=True
 FRONT_BEAR=0
@@ -49,36 +48,33 @@ def stop():
     twist.linear.x = 0
     twist.angular.z = 0
     command_vel_pub.publish(twist)
-    print("done")
 
-def create_bt_root():
-    global ttt_behavior
-    root = py_trees.composites.Sequence("Find Wall")
-    ttt_behavior = stroller_behaviors.Turn2Target("Turn2Target")
-    root.add_child(ttt_behavior)
-    return root
+def shutdown_hook():
+    stop()
+    print("\n*** Shutdown Requested ***")
+
 
 rospy.init_node('stroller_control')
 sensor_sub = rospy.Subscriber('/sensor', Sensor,  sensor_callback)
 command_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 target_distance = target_bearing = 0
 rate = rospy.Rate(1)
+rospy.on_shutdown(shutdown_hook)
 twist = Twist()
-py_trees.logging.level = py_trees.logging.Level.DEBUG
-bt_root = create_bt_root()
-bt_root.setup(timeout=15)
-
+sbc = stroller_bt.StrollerBt()
+sbc.create_tree()
 
 # Wait for the simulator to be ready
 while rospy.Time.now().to_sec() == 0:
     rate.sleep()
 
-while not rospy.is_shutdown():
+while not (rospy.is_shutdown()):
     try:
-        ttt_behavior.target_bearing = target_distance
-        ttt_behavior.target_distance = target_distance
-        print (bt_root.tick_once())
-    except Exception as e:
-        print(e.message)
-        stop()
+        sbc.print_status()
+        sbc.set_sensor_data(target_distance, target_bearing)
+        sbc.tick_once()
+        twist.linear.x, twist.angular.z = sbc.get_desired_motion()
+        command_vel_pub.publish(twist)
+        rate.sleep()
+    except rospy.exceptions.ROSInterruptException:
         break

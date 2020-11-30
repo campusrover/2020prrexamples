@@ -1,4 +1,5 @@
 import py_trees
+from math import pi
 
 class BaseBehavior(py_trees.behaviour.Behaviour):
     def __init__(self, name):
@@ -9,6 +10,12 @@ class BaseBehavior(py_trees.behaviour.Behaviour):
         super(BaseBehavior, self).setup(timeout)
         self.log("setup")
         return True
+    
+    def mirror_radians(self, angle):
+        if angle < pi:
+            return angle
+        else:
+            return angle- 2*pi
 
     def log(self, str, vals = None):
         if (vals is  None):
