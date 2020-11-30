@@ -39,7 +39,8 @@ def scan_callback(msg):
     global near_dist, near_bear, front_dist, right_dist, left_dist, rear_dist
     ar = np.array(msg.ranges)
     filter_and_average = [filter(ar,x) for x in range(0, ar.size)]
-    near_bear = np.argmin(filter_and_average)
+    # near_bear = np.argmin(filter_and_average)
+    near_bear = np.argmin(np.around(filter_and_average, decimals=2))
     near_dist = filter_and_average[near_bear]
 # minirover's lidear (ydlidar X4) sends back 720 numbers per rotation hence the divide by two, 
 # gazebo sends back 360 numbers so it doesn't have to be divided by two

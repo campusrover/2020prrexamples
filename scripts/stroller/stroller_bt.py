@@ -63,7 +63,7 @@ class CheckFacingObstacle(bt_utils.BaseBehavior):
     def update(self):
         bb = Blackboard()
         mirr_angle = self.mirror_radians(bb.target_bearing)
-        if abs(mirr_angle) < 0.1:
+        if abs(mirr_angle) < 0.15:
             return(py_trees.Status.SUCCESS)
         else:
             return(py_trees.Status.FAILURE)
