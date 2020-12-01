@@ -15,10 +15,7 @@ LEFT_BEAR=270
 
 green = ColorRGBA(0, 1, 0, 1)
 red = ColorRGBA(1, 0, 0, 1)
-blue1 = ColorRGBA(0, 0, 1, 1)
-blue2 = ColorRGBA(0, 0, 1, 0.75)
-blue3 = ColorRGBA(0, 0, 1, 0.5)
-blue4 = ColorRGBA(0, 0, 1, 0.25)
+grey = ColorRGBA(0.6, 0.6, 0.6, 1)
 
 def invert_angle(angle):
     """To make the arrow markers work correctly we need to flip the angle because angles go the other way there"""
@@ -29,10 +26,10 @@ def invert_angle(angle):
 
 def draw_markers(forward, left, right, rear, shortest_bearing, shortest):
     mu = MarkerArrayUtils()
-    mu.add_marker(1, blue1, invert_angle(radians(FRONT_BEAR)), forward)
-    mu.add_marker(2, blue4, invert_angle(radians(LEFT_BEAR)), left)
-    mu.add_marker(3, blue2, invert_angle(radians(RIGHT_BEAR)), right)
-    mu.add_marker(4, blue3, invert_angle(radians(REAR_BEAR)), rear)
+    mu.add_marker(1, grey, invert_angle(radians(FRONT_BEAR)), forward)
+    mu.add_marker(2, grey, invert_angle(radians(LEFT_BEAR)), left)
+    mu.add_marker(3, grey, invert_angle(radians(RIGHT_BEAR)), right)
+    mu.add_marker(4, grey, invert_angle(radians(REAR_BEAR)), rear)
     mu.add_marker(5, red, invert_angle(shortest_bearing), shortest)
     mu.publish()
 

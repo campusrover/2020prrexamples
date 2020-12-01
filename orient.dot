@@ -1,0 +1,18 @@
+digraph orient {
+graph [fontname="times-roman"];
+node [fontname="times-roman"];
+edge [fontname="times-roman"];
+orient [fontcolor=black, shape=octagon, fontsize=11, style=filled, fillcolor=cyan];
+rangsaf [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+orient -> rangsaf;
+"min dist" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> "min dist";
+"turn from obs" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> "turn from obs";
+creep [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> creep;
+chkfacing [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+orient -> chkfacing;
+turn2obs [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+orient -> turn2obs;
+}

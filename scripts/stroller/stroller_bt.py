@@ -1,16 +1,18 @@
 import py_trees
 import random
+import math
 import time
 from py_trees import Blackboard
 import bt_utils
 
 class StrollerBt():
     def create_tree(self):
-        #range_safety = py_trees.composites.Selector("rangsaf")
-        #range_safety.add_child(TooClose("tooclose"))
-        #range_safety.add_child(MoveAwayFromWall("awaywall"))
+        range_safety = py_trees.composites.Sequence("rangsaf")
+        range_safety.add_child(CheckMinDistance("min dist", 0.05))
+        range_safety.add_child(TurnAwayFromObstacle("turn from obs"))
+        range_safety.add_child(CreepForward("creep", 10))
         self.tree = py_trees.composites.Selector(name="orient")
-        # tree.add_child(range_safety)
+        self.tree.add_child(range_safety)
         self.tree.add_child(CheckFacingObstacle("chkfacing"))
         self.tree.add_child(TurnTowardsNearestObstacle("turn2obs"))
         self.tree.setup(timeout=15)
@@ -20,6 +22,7 @@ class StrollerBt():
         bb.target_distance = 0
         bb.target_bearing = 0
         self.counter = 0
+        py_trees.display.render_dot_tree(self.tree)
         return self.tree
 
     def set_sensor_data(self, target_distance, target_bearing):
@@ -59,13 +62,59 @@ class TurnTowardsNearestObstacle(bt_utils.BaseBehavior):
             bb.desired_turn = mirr_angle / 5.0
             return(py_trees.Status.RUNNING)
 
+class TurnAwayFromObstacle(bt_utils.BaseBehavior):
+    def update(self):
+        bb = Blackboard()
+        mirr_angle = self.mirror_radians(bb.target_bearing)
+        if  abs(mirr_angle) > math.radians(175):
+            self.log("Now pointing away from wall", mirr_angle)
+            bb.desired_move = 0.0
+            bb.desired_turn = 0.0
+            return (py_trees.Status.SUCCESS)
+        else:
+            self.log("Turning away from wall", mirr_angle)
+            bb.desired_move = 0.0
+            bb.desired_turn = mirr_angle / 5.0
+            return(py_trees.Status.RUNNING)
+
 class CheckFacingObstacle(bt_utils.BaseBehavior):
     def update(self):
         bb = Blackboard()
         mirr_angle = self.mirror_radians(bb.target_bearing)
         if abs(mirr_angle) < 0.15:
+            self.log("Facing Obstacle", mirr_angle)
             return(py_trees.Status.SUCCESS)
         else:
+            self.log("Not Facing Obstacle", mirr_angle)
             return(py_trees.Status.FAILURE)
 
-    
+class CheckMinDistance(bt_utils.BaseBehavior):
+    def __init__(self, name, min_distance):
+        self.min_distance = min_distance
+        super(CheckMinDistance, self).__init__(name)
+
+    def update(self):
+        bb = Blackboard()
+        if bb.target_distance <= self.min_distance:
+            self.log("Too Close")
+            return(py_trees.Status.SUCCESS)
+        else:
+            self.log("Safe Distance")
+            return(py_trees.Status.FAILURE)
+
+class CreepForward(bt_utils.BaseBehavior):
+
+    def __init__(self, name, loops):
+        self.loops = loops
+        super(CreepForward, self).__init__(name)
+
+    def update(self):
+        bb.desired_move = 0
+        bb.desired_turn = 0
+        if self.loops==0:
+            return(py_trees.Status.SUCCESS)
+        else:
+            self.log("Creeping")
+            self.loops -= 1
+            bb.desired_move = 0.1
+            return(py_trees.Status.RUNNING)
