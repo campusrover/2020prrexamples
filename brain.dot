@@ -1,0 +1,20 @@
+digraph brain {
+graph [fontname="times-roman"];
+node [fontname="times-roman"];
+edge [fontname="times-roman"];
+brain [fontcolor=black, shape=octagon, fontsize=11, style=filled, fillcolor=cyan];
+rangsaf [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+brain -> rangsaf;
+"min dist" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> "min dist";
+"turn from obs" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> "turn from obs";
+creep [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+rangsaf -> creep;
+"approach obstacle" [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+brain -> "approach obstacle";
+chkfacing [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"approach obstacle" -> chkfacing;
+turn2obs [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"approach obstacle" -> turn2obs;
+}
