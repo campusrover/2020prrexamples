@@ -7,16 +7,21 @@ import bt_utils
 
 class StrollerBt():
     def create_tree(self):
-        range_safety = py_trees.composites.Sequence("rangsaf")
-        range_safety.add_child(CheckMinDistance("min dist", 0.05))
-        range_safety.add_child(TurnAwayFromObstacle("turn from obs"))
-        range_safety.add_child(CreepForward("creep", 10))
-        approach_obstacle = py_trees.composites.Sequence("approach obstacle")
-        approach_obstacle.add_child(CheckFacingObstacle("chkfacing"))
-        approach_obstacle.add_child(TurnTowardsNearestObstacle("turn2obs"))
-        self.tree = py_trees.composites.Selector(name="brain")
-        self.tree.add_child(range_safety)
-        self.tree.add_child(approach_obstacle)
+        self.tree = py_trees.composites.Selector(name="Brain", children=[
+            py_trees.composites.Sequence("Range Safety", children=[
+                CheckMinDistance("CheckMinDistance", 0.05),
+                TurnAwayFromObstacle("TurnAwayFromObstacle"),
+                CreepForward("CreepForward", 10)
+            ]),
+            py_trees.composites.Sequence("ApproachWall", children=[
+                py_trees.composites.Selector("Face Wall",[
+                    CheckFacingObstacle("CheckFacingObstacle"),
+                    TurnTowardsNearestObstacle("TurnTowardsNearestObstacle")
+                ]),
+                py_trees.composites.Sequence("Move towards wall",[
+                    py_trees.decorators.Inverter(CheckMinDistance("CheckMinDistance", 0.15)),
+                    DriveForward("DriveForward", 0.2)])])])
+
         self.tree.setup(timeout=15)
         bb = Blackboard()
         bb.desired_move = 0.0
@@ -74,7 +79,7 @@ class TurnAwayFromObstacle(bt_utils.BaseBehavior):
             bb.desired_turn = 0.0
             return (py_trees.Status.SUCCESS)
         else:
-            self.log("Turning away from wall", mirr_angle)
+            self.log("Turning away from Obstacle", mirr_angle)
             bb.desired_move = 0.0
             bb.desired_turn = mirr_angle / 5.0
             return(py_trees.Status.RUNNING)
@@ -98,7 +103,7 @@ class CheckMinDistance(bt_utils.BaseBehavior):
     def update(self):
         bb = Blackboard()
         if bb.target_distance <= self.min_distance:
-            self.log("Too Close")
+            self.log("Too Close", bb.target_distance)
             return(py_trees.Status.SUCCESS)
         else:
             self.log("Safe Distance")
@@ -111,6 +116,7 @@ class CreepForward(bt_utils.BaseBehavior):
         super(CreepForward, self).__init__(name)
 
     def update(self):
+        bb = Blackboard()
         bb.desired_move = 0
         bb.desired_turn = 0
         if self.loops==0:
@@ -120,3 +126,15 @@ class CreepForward(bt_utils.BaseBehavior):
             self.loops -= 1
             bb.desired_move = 0.1
             return(py_trees.Status.RUNNING)
+
+class DriveForward(bt_utils.BaseBehavior):
+
+    def __init__(self, name, loops):
+        self.loops = loops
+        super(DriveForward, self).__init__(name)
+
+    def update(self):
+        bb = Blackboard()
+        bb.desired_turn = 0
+        bb.desired_move = 0.1
+        return(py_trees.Status.RUNNING)

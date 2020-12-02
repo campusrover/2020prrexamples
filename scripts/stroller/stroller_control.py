@@ -71,6 +71,7 @@ while not (rospy.is_shutdown()):
         sbc.set_sensor_data(target_distance, target_bearing)
         sbc.tick_once()
         twist.linear.x, twist.angular.z = sbc.get_desired_motion()
+        print(twist.linear.x, twist.angular.z)
         command_vel_pub.publish(twist)
         rate.sleep()
     except rospy.exceptions.ROSInterruptException:

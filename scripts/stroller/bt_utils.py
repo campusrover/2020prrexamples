@@ -19,9 +19,9 @@ class BaseBehavior(py_trees.behaviour.Behaviour):
 
     def log(self, str, vals = None):
         if (vals is  None):
-            print(("%s:  " + str) % self.name)
+            print(("%s: " + str) % self.name)
         else:
-            print(("%s:"+str+" %s") % (self.name, vals))
+            print(("%s: "+str+" %s") % (self.name, vals))
 
 
     
