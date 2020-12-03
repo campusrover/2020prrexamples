@@ -7,20 +7,27 @@ import bt_utils
 
 class StrollerBt():
     def create_tree(self):
-        self.tree = py_trees.composites.Selector(name="Brain", children=[
-            py_trees.composites.Sequence("Range Safety", children=[
-                CheckMinDistance("CheckMinDistance", 0.05),
-                TurnAwayFromObstacle("TurnAwayFromObstacle"),
-                CreepForward("CreepForward", 10)
+        self.tree = py_trees.composites.Selector(children=[
+            py_trees.composites.Sequence(children=[
+                DistanceLessThan(0.2),
+                TurnAwayFromObstacle(),
+                CreepForward(5)
             ]),
-            py_trees.composites.Sequence("ApproachWall", children=[
-                py_trees.composites.Selector("Face Wall",[
-                    CheckFacingObstacle("CheckFacingObstacle"),
-                    TurnTowardsNearestObstacle("TurnTowardsNearestObstacle")
+            py_trees.composites.Sequence(children=[
+                py_trees.composites.Selector(children=[
+                    CheckFacingObstacle(),
+                    TurnTowardsNearestObstacle()
                 ]),
-                py_trees.composites.Sequence("Move towards wall",[
-                    py_trees.decorators.Inverter(CheckMinDistance("CheckMinDistance", 0.15)),
-                    DriveForward("DriveForward", 0.2)])])])
+                py_trees.composites.Sequence(children=[
+                    py_trees.decorators.Inverter(DistanceLessThan(0.3)),
+                    DriveForward(0.1)
+                ])
+            ]),
+            py_trees.composites.Sequence(children=[
+                TurnSoObstacleAt(90),
+                DriveForward(0.1)
+            ])
+        ])
 
         self.tree.setup(timeout=15)
         bb = Blackboard()
@@ -69,6 +76,21 @@ class TurnTowardsNearestObstacle(bt_utils.BaseBehavior):
             bb.desired_turn = mirr_angle / 5.0
             return(py_trees.Status.RUNNING)
 
+class TurnSoObstacleAt(bt_utils.BaseBehavior):
+    def __init__(self, angle):
+        # Angle is in degrees
+        self.desired = math.radians(angle)
+        super(TurnSoObstacleAt, self).__init__()
+
+    def update(self):
+        bb = BlackBoard()
+        actual = bb.target_bearing
+    # actual is the angle of the nearest obstacle
+    # desired is the desired angle to the nearest obstacle
+        delta = self.angle_dif(actual, self.desired)
+        bb.desired_move = 0.0
+        bb.desired_turn = delta/180.0
+
 class TurnAwayFromObstacle(bt_utils.BaseBehavior):
     def update(self):
         bb = Blackboard()
@@ -81,7 +103,7 @@ class TurnAwayFromObstacle(bt_utils.BaseBehavior):
         else:
             self.log("Turning away from Obstacle", mirr_angle)
             bb.desired_move = 0.0
-            bb.desired_turn = mirr_angle / 5.0
+            bb.desired_turn = (mirr_angle - math.radians(175))
             return(py_trees.Status.RUNNING)
 
 class CheckFacingObstacle(bt_utils.BaseBehavior):
@@ -95,25 +117,25 @@ class CheckFacingObstacle(bt_utils.BaseBehavior):
             self.log("Not Facing Obstacle", mirr_angle)
             return(py_trees.Status.FAILURE)
 
-class CheckMinDistance(bt_utils.BaseBehavior):
-    def __init__(self, name, min_distance):
+class DistanceLessThan(bt_utils.BaseBehavior):
+    def __init__(self, min_distance):
         self.min_distance = min_distance
-        super(CheckMinDistance, self).__init__(name)
+        super(DistanceLessThan, self).__init__()
 
     def update(self):
         bb = Blackboard()
         if bb.target_distance <= self.min_distance:
-            self.log("Too Close", bb.target_distance)
+            self.log("Distance .LE. than: ", bb.target_distance)
             return(py_trees.Status.SUCCESS)
         else:
-            self.log("Safe Distance")
+            self.log("Distance .GT.:", bb.target_distance)
             return(py_trees.Status.FAILURE)
 
 class CreepForward(bt_utils.BaseBehavior):
 
-    def __init__(self, name, loops):
+    def __init__(self, loops):
         self.loops = loops
-        super(CreepForward, self).__init__(name)
+        super(CreepForward, self).__init__()
 
     def update(self):
         bb = Blackboard()
@@ -129,9 +151,9 @@ class CreepForward(bt_utils.BaseBehavior):
 
 class DriveForward(bt_utils.BaseBehavior):
 
-    def __init__(self, name, loops):
+    def __init__(self, loops):
         self.loops = loops
-        super(DriveForward, self).__init__(name)
+        super(DriveForward, self).__init__()
 
     def update(self):
         bb = Blackboard()

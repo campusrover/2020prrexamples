@@ -2,7 +2,8 @@ import py_trees
 from math import pi
 
 class BaseBehavior(py_trees.behaviour.Behaviour):
-    def __init__(self, name):
+    def __init__(self):
+        name = type(self).__name__
         super(BaseBehavior, self).__init__(name)
         self.log("__init__")
 
@@ -16,6 +17,14 @@ class BaseBehavior(py_trees.behaviour.Behaviour):
             return angle
         else:
             return angle- 2*pi
+
+    def angle_dif(actual, desired):
+        diff = actual - desired
+        if diff > 180:
+            diff = 360-diff
+        elif diff < -180:
+            diff = 360+diff
+        return diff
 
     def log(self, str, vals = None):
         if (vals is  None):

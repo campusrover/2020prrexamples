@@ -1,0 +1,30 @@
+digraph selector {
+graph [fontname="times-roman"];
+node [fontname="times-roman"];
+edge [fontname="times-roman"];
+Selector [fontcolor=black, shape=octagon, fontsize=11, style=filled, fillcolor=cyan];
+Sequence [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+Selector -> Sequence;
+DistanceLessThan [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+Sequence -> DistanceLessThan;
+TurnAwayFromObstacle [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+Sequence -> TurnAwayFromObstacle;
+CreepForward [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+Sequence -> CreepForward;
+"Sequence*" [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+Selector -> "Sequence*";
+"Selector*" [fontcolor=black, shape=octagon, fontsize=11, style=filled, fillcolor=cyan];
+"Sequence*" -> "Selector*";
+CheckFacingObstacle [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"Selector*" -> CheckFacingObstacle;
+TurnTowardsNearestObstacle [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"Selector*" -> TurnTowardsNearestObstacle;
+"Sequence**" [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
+"Sequence*" -> "Sequence**";
+"Inverter\n[DistanceLessThan]" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=ghostwhite];
+"Sequence**" -> "Inverter\n[DistanceLessThan]";
+"DistanceLessThan*" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"Inverter\n[DistanceLessThan]" -> "DistanceLessThan*";
+DriveForward [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
+"Sequence**" -> DriveForward;
+}
