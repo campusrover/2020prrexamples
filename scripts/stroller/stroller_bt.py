@@ -8,34 +8,27 @@ import bt_utils
 class StrollerBt():
     def create_tree(self):
         self.tree = py_trees.composites.Selector(children=[
+# Check if we are too close
             py_trees.composites.Sequence(children=[
-                DistanceLessThan(0.2),
-                TurnAwayFromObstacle(),
-                CreepForward(5)
+                DistanceLessThan(0.15),
+                TurnSoObstacleAt(180),
+                CreepForward(1)
             ]),
+# Check if we are too far
             py_trees.composites.Sequence(children=[
-                py_trees.composites.Selector(children=[
-                    CheckFacingObstacle(),
-                    TurnTowardsNearestObstacle()
-                ]),
-                py_trees.composites.Sequence(children=[
-                    py_trees.decorators.Inverter(DistanceLessThan(0.3)),
-                    DriveForward(0.1)
-                ])
+                py_trees.decorators.Inverter(DistanceLessThan(0.5)),
+                TurnSoObstacleAt(0),
+                CreepForward(1)
             ]),
-            py_trees.composites.Sequence(children=[
-                TurnSoObstacleAt(90),
-                DriveForward(0.1)
-            ])
+# Here are are in the right zone
+            FollowWall(90, 0.35, 0.1)
         ])
 
         self.tree.setup(timeout=15)
         bb = Blackboard()
-        bb.desired_move = 0.0
-        bb.desired_turn = 0.0
-        bb.target_distance = 0
-        bb.target_bearing = 0
         self.counter = 0
+        self.set_desired_motion(0,0)
+        self.set_sensor_data(0,0)
         py_trees.display.render_dot_tree(self.tree)
         return self.tree
 
@@ -47,75 +40,76 @@ class StrollerBt():
     def get_desired_motion(self):
         bb = Blackboard()
         return (bb.desired_move, bb.desired_turn)
-        
+
+    def set_desired_motion(self, move, turn):
+        bb = Blackboard()
+        bb.desired_move = move
+        bb.desired_turn = turn
+
     def is_shutdown(self):
         return (self.tree.status == py_trees.Status.SUCCESS)
     
     def print_status(self):
         bb = Blackboard()
         print("--------- Tick {0} ---------".format(self.counter))
-        print("des mov: {0:.2f} turn: {1:.2f} target dist: {2:.2f} bearing {3:.2f}".format(bb.desired_move, bb.desired_turn, bb.target_distance, bb.target_bearing))
+        print("Des mov: {0:.2f},turn: {1:.2f} Target dist: {2:.2f},bearing {3:.2f}".format(bb.desired_move, bb.desired_turn, bb.target_distance, bb.target_bearing))
         py_trees.display.print_ascii_tree(self.tree, show_status=True)
 
     def tick_once(self):
         self.counter += 1
-        self.tree.tick_once()
-
-class TurnTowardsNearestObstacle(bt_utils.BaseBehavior):
-    def update(self):
         bb = Blackboard()
-        mirr_angle = self.mirror_radians(bb.target_bearing)
-        if  abs(mirr_angle) < 0.15:
-            self.log("Now pointing to wall", mirr_angle)
-            bb.desired_move = 0.0
-            bb.desired_turn = 0.0
-            return (py_trees.Status.SUCCESS)
-        else:
-            self.log("Turning towards wall", mirr_angle)
-            bb.desired_move = 0.0
-            bb.desired_turn = mirr_angle / 5.0
-            return(py_trees.Status.RUNNING)
+        bb.desired_move = 0.0
+        bb.desired_turn = 0.0
+        self.tree.tick_once()
 
 class TurnSoObstacleAt(bt_utils.BaseBehavior):
     def __init__(self, angle):
         # Angle is in degrees
-        self.desired = math.radians(angle)
+        self.angle = math.radians(angle)
         super(TurnSoObstacleAt, self).__init__()
 
     def update(self):
-        bb = BlackBoard()
+        bb = Blackboard()
         actual = bb.target_bearing
     # actual is the angle of the nearest obstacle
     # desired is the desired angle to the nearest obstacle
-        delta = self.angle_dif(actual, self.desired)
-        bb.desired_move = 0.0
-        bb.desired_turn = delta/180.0
-
-class TurnAwayFromObstacle(bt_utils.BaseBehavior):
-    def update(self):
-        bb = Blackboard()
-        mirr_angle = self.mirror_radians(bb.target_bearing)
-        if  abs(mirr_angle) > math.radians(175):
-            self.log("Now pointing away from wall", mirr_angle)
+        delta = self.angle_dif(actual, self.angle)
+        if (abs(delta) < 0.2):
+            bb.desired_turn = 0
             bb.desired_move = 0.0
-            bb.desired_turn = 0.0
-            return (py_trees.Status.SUCCESS)
-        else:
-            self.log("Turning away from Obstacle", mirr_angle)
-            bb.desired_move = 0.0
-            bb.desired_turn = (mirr_angle - math.radians(175))
-            return(py_trees.Status.RUNNING)
-
-class CheckFacingObstacle(bt_utils.BaseBehavior):
-    def update(self):
-        bb = Blackboard()
-        mirr_angle = self.mirror_radians(bb.target_bearing)
-        if abs(mirr_angle) < 0.15:
-            self.log("Facing Obstacle", mirr_angle)
+            self.log("Goal angle: %.2f delta: %.2f -> SUCCESS" % (self.angle, delta))
             return(py_trees.Status.SUCCESS)
         else:
-            self.log("Not Facing Obstacle", mirr_angle)
-            return(py_trees.Status.FAILURE)
+            bb.desired_move = 0.0
+            bb.desired_turn = delta/10.0
+            self.log("Goal angle: %.2f delta: %.2f -> RUNNING" % (self.angle, delta))
+            return(py_trees.Status.RUNNING)
+
+class FollowWall(bt_utils.BaseBehavior):
+    def __init__(self, angle, distance, speed):
+        super(FollowWall, self).__init__()
+        self.goal_angle = math.radians(angle)
+        self.goal_distance = distance
+        self.goal_speed = speed
+
+    def update(self):
+        bb = Blackboard()
+        actual_angle = bb.target_bearing
+        angle_delta = self.angle_dif(actual_angle, self.goal_angle)
+        bb.desired_turn = 0.0
+        bb.desired_move = self.goal_speed
+    # Is robot pointed in the right direction?
+        if (abs(angle_delta) > 0.2):
+            bb.desired_turn = angle_delta/5.0
+    # Is robot at the right distance?
+        distance_delta = bb.target_distance - self.goal_distance
+        #if (abs(distance_delta > 0.05)):
+            #bb.desired_turn += distance_delta
+    # If we are turning strongly then reduce speed
+        if (abs(angle_delta) > 0.05):
+            bb.desired_move = 0.0
+        self.log("delta: dist %.2f angle: %.2f req move: %2f turn %2f" % (distance_delta, angle_delta, bb.desired_move, bb.desired_turn))
+        return(py_trees.Status.SUCCESS)
 
 class DistanceLessThan(bt_utils.BaseBehavior):
     def __init__(self, min_distance):
@@ -125,38 +119,33 @@ class DistanceLessThan(bt_utils.BaseBehavior):
     def update(self):
         bb = Blackboard()
         if bb.target_distance <= self.min_distance:
-            self.log("Distance .LE. than: ", bb.target_distance)
+            self.log("Distance %.2f .LE. than %.2f (SUCCESS)" % (bb.target_distance, self.min_distance))
             return(py_trees.Status.SUCCESS)
         else:
-            self.log("Distance .GT.:", bb.target_distance)
+            self.log("Distance %.2f .GT. than %.2f (FAIL)" % (bb.target_distance, self.min_distance))
             return(py_trees.Status.FAILURE)
 
 class CreepForward(bt_utils.BaseBehavior):
-
     def __init__(self, loops):
+        print("creep init")
         self.loops = loops
         super(CreepForward, self).__init__()
 
+    def initialise(self):
+        print("creep initialise")
+        super(CreepForward, self).initialise()
+        self.counter = self.loops
+        return True
+
     def update(self):
+        print("creep update",)
         bb = Blackboard()
         bb.desired_move = 0
         bb.desired_turn = 0
-        if self.loops==0:
+        if self.counter==0:
             return(py_trees.Status.SUCCESS)
         else:
             self.log("Creeping")
-            self.loops -= 1
-            bb.desired_move = 0.1
+            self.counter -= 1
+            bb.desired_move = 0.07
             return(py_trees.Status.RUNNING)
-
-class DriveForward(bt_utils.BaseBehavior):
-
-    def __init__(self, loops):
-        self.loops = loops
-        super(DriveForward, self).__init__()
-
-    def update(self):
-        bb = Blackboard()
-        bb.desired_turn = 0
-        bb.desired_move = 0.1
-        return(py_trees.Status.RUNNING)

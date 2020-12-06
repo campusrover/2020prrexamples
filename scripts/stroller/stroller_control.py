@@ -35,7 +35,7 @@ def draw_markers(forward, left, right, rear, shortest_bearing, shortest):
 
 def sensor_callback(msg):
     global target_bearing, target_distance
-    draw_markers(msg.forward, msg.left, msg.right, msg.rear, msg.shortest_bearing, msg.shortest)
+    #draw_markers(msg.forward, msg.left, msg.right, msg.rear, msg.shortest_bearing, msg.shortest)
     target_bearing = msg.shortest_bearing
     target_distance = msg.shortest
 
@@ -50,16 +50,16 @@ def shutdown_hook():
     stop()
     print("\n*** Shutdown Requested ***")
 
-
 rospy.init_node('stroller_control')
 sensor_sub = rospy.Subscriber('/sensor', Sensor,  sensor_callback)
 command_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 target_distance = target_bearing = 0
-rate = rospy.Rate(1)
+rate = rospy.Rate(4)
 rospy.on_shutdown(shutdown_hook)
 twist = Twist()
 sbc = stroller_bt.StrollerBt()
 sbc.create_tree()
+
 
 # Wait for the simulator to be ready
 while rospy.Time.now().to_sec() == 0:
@@ -70,9 +70,12 @@ while not (rospy.is_shutdown()):
         sbc.print_status()
         sbc.set_sensor_data(target_distance, target_bearing)
         sbc.tick_once()
-        twist.linear.x, twist.angular.z = sbc.get_desired_motion()
-        print(twist.linear.x, twist.angular.z)
-        command_vel_pub.publish(twist)
+        move, turn = sbc.get_desired_motion()
+        if (move != twist.linear.x or turn != twist.angular.z):
+            twist.linear.x = move
+            twist.angular.z = turn
+            command_vel_pub.publish(twist)
+            #print("fwd: %.2f turn: %.2f " % (twist.linear.x, twist.angular.z))
         rate.sleep()
     except rospy.exceptions.ROSInterruptException:
         break
