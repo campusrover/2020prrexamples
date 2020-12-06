@@ -26,16 +26,16 @@ def invert_angle(angle):
 
 def draw_markers(forward, left, right, rear, shortest_bearing, shortest):
     mu = MarkerArrayUtils()
-    mu.add_marker(1, grey, invert_angle(radians(FRONT_BEAR)), forward)
-    mu.add_marker(2, grey, invert_angle(radians(LEFT_BEAR)), left)
-    mu.add_marker(3, grey, invert_angle(radians(RIGHT_BEAR)), right)
-    mu.add_marker(4, grey, invert_angle(radians(REAR_BEAR)), rear)
+    # mu.add_marker(1, grey, invert_angle(radians(FRONT_BEAR)), forward)
+    # mu.add_marker(2, grey, invert_angle(radians(LEFT_BEAR)), left)
+    # mu.add_marker(3, grey, invert_angle(radians(RIGHT_BEAR)), right)
+    # mu.add_marker(4, grey, invert_angle(radians(REAR_BEAR)), rear)
     mu.add_marker(5, red, invert_angle(shortest_bearing), shortest)
     mu.publish()
 
 def sensor_callback(msg):
     global target_bearing, target_distance
-    #draw_markers(msg.forward, msg.left, msg.right, msg.rear, msg.shortest_bearing, msg.shortest)
+    draw_markers(msg.forward, msg.left, msg.right, msg.rear, msg.shortest_bearing, msg.shortest)
     target_bearing = msg.shortest_bearing
     target_distance = msg.shortest
 
