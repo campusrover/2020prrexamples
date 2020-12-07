@@ -13,8 +13,8 @@ class BaseBehavior(py_trees.behaviour.Behaviour):
         return True
     
     def mirror_radians(self, angle):
-    """Given an angle compute the corresponding mirror angle as if
-    positive was clockwise and negative by counterclockwise"""
+        """Given an angle compute the corresponding mirror angle as if
+        positive was clockwise and negative by counterclockwise"""
         if angle < pi:
             return angle
         else:
@@ -34,7 +34,7 @@ class BaseBehavior(py_trees.behaviour.Behaviour):
 
     def log(self, str, vals = None):
         """ Log with an optional parameter. A central place to turn it on and off."""
-        if False:
+        if True:
             if (vals is  None):
                 print(("%s: " + str) % self.name)
             else:

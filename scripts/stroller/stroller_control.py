@@ -54,7 +54,7 @@ rospy.init_node('stroller_control')
 sensor_sub = rospy.Subscriber('/sensor', Sensor,  sensor_callback)
 command_vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=1)
 target_distance = target_bearing = 0
-rate = rospy.Rate(4)
+rate = rospy.Rate(2)
 rospy.on_shutdown(shutdown_hook)
 twist = Twist()
 sbc = stroller_bt.StrollerBt()

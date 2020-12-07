@@ -21,7 +21,7 @@ class StrollerBt():
                 CreepForward(1)
             ]),
 # Here are are in the right zone
-            FollowWall(90, 0.35, 0.1)
+            FollowWall(90, 0.35, 0.14)
         ])
 
         self.tree.setup(timeout=15)
@@ -103,12 +103,13 @@ class FollowWall(bt_utils.BaseBehavior):
             bb.desired_turn = angle_delta/5.0
     # Is robot at the right distance?
         distance_delta = bb.target_distance - self.goal_distance
-        #if (abs(distance_delta > 0.05)):
-            #bb.desired_turn += distance_delta
+        if abs(distance_delta) > 0.05:
+            print(".")
+            bb.desired_turn += distance_delta
     # If we are turning strongly then reduce speed
-        if (abs(angle_delta) > 0.05):
+        if (abs(angle_delta) > math.radians(30)):
             bb.desired_move = 0.0
-        self.log("delta: dist %.2f angle: %.2f req move: %2f turn %2f" % (distance_delta, angle_delta, bb.desired_move, bb.desired_turn))
+        self.log("delta dist %.2f angle: %.2f req move: %2f turn %2f" % (distance_delta, angle_delta, bb.desired_move, bb.desired_turn))
         return(py_trees.Status.SUCCESS)
 
 class DistanceLessThan(bt_utils.BaseBehavior):
