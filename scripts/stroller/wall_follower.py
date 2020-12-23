@@ -38,21 +38,19 @@ class PID:
 
         #Calculating the PID Control
         self.control = self.Kp * self.curr_error + self.Ti * self.sum_error + self.Td * self.curr_error_deriv
-
+        print self.Kp, self.Ti, self.Td, self.control, current_error
 
     def get_control(self):
         return self.control
         
-class WallFollowerHusky:
+class WallFollower:
     def __init__(self):
-        rospy.init_node('wall_follower_husky', anonymous=True)
-
-        self.forward_speed = rospy.get_param("~forward_speed")
-        self.desired_distance_from_wall = rospy.get_param("~desired_distance_from_wall")
+        rospy.init_node('wall_follower', anonymous=True)
         self.hz = 50 
 
         #Setting the PID
-        self.controller=PID(-1,-1.2, 0.00001,0.02)
+        self.controller=PID(-1,-1.2, 0.00001,0.1)
+        self.update_params()
 
         #Creating a cte_pub Publisher that will publish the cross track error
         self.cte_pub = rospy.Publisher("/cte", String, queue_size=50)
@@ -69,13 +67,12 @@ class WallFollowerHusky:
         #Creating a Subscriber that will call laser_scan_callback every Laser Scan
         self.laser_sub = rospy.Subscriber("/scan", LaserScan, self.laser_scan_callback)
         
-        #Server
-        srv = Server(FollowerConfig, self.serverCall)
 
     def laser_scan_callback(self, msg):
    
         cross_track_error=0
         distance_from_wall=999999
+        self.update_params()
 
         #Finding the closest distance from the wall the robot reaches
         #Divided by 2 so it goes to the left wall and not the one on the right
@@ -92,10 +89,10 @@ class WallFollowerHusky:
 
        	cmd = Twist()
         cmd.linear.x = self.forward_speed
+
   		#Getting the new cmd.angular.z
        	cmd.angular.z = self.controller.get_control()
        	
-        print("pub")
        	#Publishing the cmd.linear.x
        	self.cmd_pub.publish(cmd)
    
@@ -105,15 +102,16 @@ class WallFollowerHusky:
         while not rospy.is_shutdown():
             rate.sleep()
 
-    #Function that will be called when values are changed
-    def serverCall(self, config, level):
-    	self.controller.Kp = config['Kp']
-    	self.controller.Td = config['Td']
-    	self.controller.Ti = config['Ti']
-    	return config
-
+    # Update latest params
+    def update_params(self):
+        self.forward_speed = rospy.get_param("~forward_speed")
+        self.desired_distance_from_wall = rospy.get_param("~desired_distance_from_wall")
+    	self.controller.Kp = rospy.get_param("~Kp")
+    	self.controller.Td = rospy.get_param("~Td")
+    	self.controller.Ti = rospy.get_param("~Ti")
+        self.controller.dt = rospy.get_param("~dt")
     
 if __name__ == '__main__':
-    wfh = WallFollowerHusky()
+    wfh = WallFollower()
     wfh.run()
 

@@ -1,6 +1,10 @@
 <launch>
    <node pkg="prrexamples" type="wall_follower.py" output="screen" name="wall_follower">
-         <param name="forward_speed" value="1.0" />
-         <param name="desired_distance_from_wall" value="1.0" />
+         <param name="forward_speed" value="0.4" />
+         <param name="desired_distance_from_wall" value="0.5" />
+         <param name="Kp" value="-2.1" />
+         <param name="Td" value="0.0" />
+         <param name="Ti" value="0" />
+         <param name="Dt" value="0.1" />
    </node>
 </launch>
