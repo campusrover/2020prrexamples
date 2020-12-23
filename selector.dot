@@ -11,16 +11,6 @@ TurnSoObstacleAt [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fil
 Sequence -> TurnSoObstacleAt;
 CreepForward [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
 Sequence -> CreepForward;
-"Sequence*" [fontcolor=black, shape=box, fontsize=11, style=filled, fillcolor=orange];
-Selector -> "Sequence*";
-"Inverter\n[DistanceLessThan]" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=ghostwhite];
-"Sequence*" -> "Inverter\n[DistanceLessThan]";
-"DistanceLessThan*" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
-"Inverter\n[DistanceLessThan]" -> "DistanceLessThan*";
-"TurnSoObstacleAt*" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
-"Sequence*" -> "TurnSoObstacleAt*";
-"CreepForward*" [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
-"Sequence*" -> "CreepForward*";
 FollowWall [fontcolor=black, shape=ellipse, fontsize=11, style=filled, fillcolor=gray];
 Selector -> FollowWall;
 }
