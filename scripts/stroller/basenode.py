@@ -1,36 +1,36 @@
 #!/usr/bin/env python
+import rospy
+
 class BaseNode:
     def __init__(self):
-        pass
+        self.hertz = 4
+        self.shutdown_requested = False
 
     def wait_for_simulator(self):
         # Wait for the simulator to be ready. If simulator is not ready, then time will be stuck at zero
         while rospy.Time.now().to_sec() == 0:
-            rate.sleep()
+            self.rate.sleep()
 
-  def stop(self):
-        twist = Twist()
-        twist.linear.x = 0
-        twist.angular.z = 0
-        self.cmd_pub.publish(twist)
+    def stop(self):
+        pass
 
     def shutdown_hook(self):
         self.shutdown_requested = True
         print("\n**** Shutdown Requested ****")
         self.stop()
 
-    def main_loop(self):
+    def loop(self):
         pass
 
     def pre_loop(self):
         pass
 
     def run(self):
-        rate = rospy.Rate(self.hz)
+        self.rate = rospy.Rate(self.hertz)
         self.pre_loop()
         while not rospy.is_shutdown() and not self.shutdown_requested:
-            self.main_loop()
-            rate.sleep()
+            self.loop()
+            self.rate.sleep()
         self.stop()
         
 if __name__ == '__main__':
