@@ -9,7 +9,6 @@ project(prrexamples)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
-  dynamic_reconfigure
 )
 
 ## System dependencies are found with CMake's conventions
@@ -50,7 +49,6 @@ add_message_files(
    FILES
    Complex.msg
    CustomMsg.msg
-   Sensor.msg
    Detector.msg
    Detector2.msg )
 
@@ -88,10 +86,10 @@ generate_messages(
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-generate_dynamic_reconfigure_options(
-   cfg/wall_following_assignment.cfg
+#generate_dynamic_reconfigure_options(
+#   cfg/wall_following_assignment.cfg
 #   cfg/DynReconf2.cfg
- )
+# )
 
 ###################################
 ## catkin specific configuration ##
