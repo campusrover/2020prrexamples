@@ -1,6 +1,0 @@
-<launch>
-    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_stage_4.launch"/>
-    <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_gazebo_rviz.launch"/>
-    <!-- <node name="stroller_control" pkg="prrexamples" type="stroller_control.py" respawn="false" output="screen" /> -->
-    <node name="smartsensor" pkg="prrexamples" type="smartsensor.py" respawn="false" output="screen" />
-</launch>
