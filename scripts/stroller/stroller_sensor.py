@@ -11,11 +11,12 @@ from math import pi
 from marker_array_utils import MarkerArrayUtils
 from std_msgs.msg import ColorRGBA
 
-GAZEBO=True
+GAZEBO=False
 FRONT_BEAR=0
 RIGHT_BEAR=90
 REAR_BEAR=180
 LEFT_BEAR=270
+
 if GAZEBO:
     LIDAR_SLOTS = 360
 else:
@@ -29,7 +30,7 @@ def filter(a, i):
     y = np.logical_and(x>0.05, x!=np.inf)
     slice = x[y]
     if slice.size == 0:
-        return 20
+        return np.NAN
     else:
         return np.average(x[y])
 
@@ -45,11 +46,11 @@ def scan_callback(msg):
 # minirover's lidear (ydlidar X4) sends back 720 numbers per rotation hence the divide by two, 
 # gazebo sends back 360 numbers so it doesn't have to be divided by two
     near_bear = math.radians(near_bear/LIDAR_DIV)
-    front_dist = filter_and_average[FRONT_BEAR/LIDAR_DIV]
-    right_dist = filter_and_average[RIGHT_BEAR/LIDAR_DIV]
-    left_dist = filter_and_average[LEFT_BEAR/LIDAR_DIV]
-    rear_dist = filter_and_average[REAR_BEAR/LIDAR_DIV]
-    #print(near_dist, near_bear, front_dist, right_dist, left_dist, rear_dist)
+    front_dist = filter_and_average[FRONT_BEAR*LIDAR_DIV]
+    right_dist = filter_and_average[RIGHT_BEAR*LIDAR_DIV]
+    left_dist = filter_and_average[LEFT_BEAR*LIDAR_DIV]
+    rear_dist = filter_and_average[REAR_BEAR*LIDAR_DIV]
+#    print("stroller_sensor nearest: %.1f bearing: %.3f front: %.3f left: %.3f rear: %.3f right: %.3f " % (near_dist, near_bear, front_dist, left_dist, rear_dist, right_dist))
 
 
 def cmd_vel_callback(msg):

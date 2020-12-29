@@ -24,7 +24,7 @@ def filter(a, i):
 # minirover's lidear (ydlidar X4) sends back 720 numbers per rotation hence the divide by two.
 def scan_callback(msg):
     global meas_dist, meas_bear
-    ar = np.array(msg.ranges)
+    ar = np.round(np.array(msg.ranges),2)
     filter_and_average = [filter(ar,x) for x in range(0, ar.size)]
     meas_bear = np.argmin(filter_and_average)
     meas_dist = filter_and_average[meas_bear]
@@ -34,7 +34,6 @@ def scan_callback(msg):
     else:
 # gazebo sends back 360
         meas_bear = math.radians(meas_bear)
-
 
 def cmd_vel_callback(msg):
     global g_turn_cmd, g_forward_cmd

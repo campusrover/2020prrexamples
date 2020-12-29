@@ -1,0 +1,4 @@
+<launch>
+      <node pkg="prrexamples" type="wall_follower.py" output="screen" name="wall_follower" />
+      <node name="stroller_sensor" pkg="prrexamples" type="stroller_sensor.py" respawn="false" output="screen" />
+</launch>
